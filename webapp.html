@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Crown Sky — Записки пилотов</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E👑%3C/text%3E%3C/svg%3E">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="config.js"></script>
+  <style>
+    :root{--navy:#0e2a4a;--blue:#2a9df4;--gold:#ffc93c;--gold2:#ff9d2e;--ink:#123a5c}
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    body{margin:0;min-height:100vh;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+      color:#fff;background:radial-gradient(circle at 80% -10%,#1d5b95 0,transparent 45%),linear-gradient(180deg,#123c6b,#0e2a4a 70%)}
+    .wrap{max-width:560px;margin:0 auto;padding:22px 18px 40px}
+    .top{display:flex;align-items:center;gap:12px;margin-bottom:22px}
+    .crown{width:46px;height:46px;flex:none;filter:drop-shadow(0 4px 10px rgba(0,0,0,.3))}
+    .brand{font-weight:800;font-size:1.35rem;letter-spacing:.5px}
+    .brand span{color:var(--gold)}
+    .brand small{display:block;font-size:.72rem;opacity:.7;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+    .card{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:20px;
+      padding:18px;margin-bottom:14px;box-shadow:0 14px 34px rgba(0,0,0,.2)}
+    .card h2{margin:0 0 8px;font-size:1.05rem;color:var(--gold)}
+    .seat-line{font-size:1.4rem;font-weight:800;margin:4px 0 10px}
+    .muted{opacity:.72;font-size:.86rem;line-height:1.5}
+    label{display:block;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.7px;opacity:.8;margin-bottom:6px}
+    input{width:100%;padding:12px 14px;border-radius:12px;border:2px solid rgba(255,255,255,.2);
+      background:rgba(255,255,255,.95);color:var(--ink);font:inherit;font-weight:700;outline:none}
+    input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,201,60,.25)}
+    .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:12px;padding:13px 16px;
+      border:0;border-radius:12px;font:inherit;font-weight:800;cursor:pointer;transition:.2s;
+      background:linear-gradient(180deg,var(--gold),var(--gold2));color:#1b2b45}
+    .btn:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(255,201,60,.35)}
+    .btn.ghost{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2)}
+    .btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+    .status{margin-top:12px;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.08);
+      font-size:.9rem;line-height:1.45;display:none}
+    .status.show{display:block}
+    .status.ok{border-left:4px solid #5ecf6b}
+    .status.err{border-left:4px solid #ff6b57}
+    .news-item{padding:12px 0;border-bottom:1px solid rgba(255,255,255,.1)}
+    .news-item:last-child{border-bottom:0}
+    .news-item b{display:block;color:var(--gold);margin-bottom:4px}
+    .news-item span{font-size:.86rem;opacity:.8;line-height:1.45}
+    .hint{text-align:center;font-size:.78rem;opacity:.6;margin-top:18px}
+    .seat-map{display:grid;gap:4px;justify-content:center;overflow-x:auto;padding:4px 0}
+    .seat-row{display:grid;grid-template-columns:repeat(12,24px);gap:4px;align-items:center;justify-content:center}
+    .seat{width:24px;height:26px;border:0;background:transparent;padding:0;position:relative;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;transition:transform .15s}
+    .seat svg{position:absolute;inset:0;width:100%;height:100%}
+    .seat .chair{fill:#5564f4}
+    .seat.taken .chair{fill:#262626}
+    .seat.selected .chair{fill:var(--gold)}
+    .seat.double{grid-column:span 2;width:52px}
+    .seat-av{position:relative;z-index:1;width:16px;height:16px;border-radius:50%;object-fit:cover;
+      border:1px solid rgba(255,255,255,.8);font-size:.5rem;font-weight:800;color:#fff;
+      display:flex;align-items:center;justify-content:center}
+    .seat.double .seat-av{width:14px;height:14px;position:absolute;top:2px}
+    .seat.double .av-l{left:8px}.seat.double .av-r{right:8px}
+    .legend{display:flex;gap:14px;justify-content:center;margin-top:10px;font-size:.72rem;opacity:.8}
+    .hall-title{text-align:center;color:var(--gold);font-weight:800;font-size:.95rem;margin:14px 0 8px}
+    .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;background:#5564f4;margin-right:4px}
+    .legend .taken{background:#262626}.legend .sel{background:var(--gold)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <svg class="crown" viewBox="0 0 64 64"><path d="M8 44 L4 16 L20 28 L32 8 L44 28 L60 16 L56 44 Z" fill="#ffc93c" stroke="#0e2a4a" stroke-width="3" stroke-linejoin="round"/><rect x="8" y="46" width="48" height="8" rx="3" fill="#ff9d2e" stroke="#0e2a4a" stroke-width="3"/></svg>
+      <div class="brand">CROWN <span>SKY</span><small>Записки пилотов</small></div>
+    </div>
+
+    <div class="card">
+      <h2>🎬 Карта мест</h2>
+      <div class="seat-map" id="appSeatMap"></div>
+      <button class="btn ghost" id="moreHallsBtn" type="button">Показать ещё зал ↓</button>
+      <div class="legend"><span><i></i>Свободно</span><span><i class="taken"></i>Занято</span><span><i class="sel"></i>Твоё место</span></div>
+    </div>
+
+    <div class="card">
+      <h2>🎟 Твой билет</h2>
+      <div class="seat-line" id="seatLabel">Место не выбрано</div>
+      <div class="muted" id="pilotCount">👥 Считаем пилотов…</div>
+      <div class="muted" id="userLine">Подключение к Telegram…</div>
+      <label for="nameInput" style="margin-top:16px">Имя на билете</label>
+      <input id="nameInput" type="text" maxlength="32" placeholder="Как к тебе обращаться">
+      <button class="btn" id="registerBtn">Продолжить регистрацию</button>
+      <button class="btn ghost" id="confirmBtn">Подтвердить регистрацию</button>
+      <div class="status" id="status"></div>
+    </div>
+
+    <div class="card">
+      <h2>📰 Новости неба</h2>
+      <div id="newsList"><div class="muted">Загружаем новости…</div></div>
+    </div>
+
+    <div class="hint" id="demoHint" style="display:none">Предпросмотр без Telegram: регистрация доступна только внутри бота.</div>
+  </div>
+
+  <script>
+    const tg = window.Telegram && window.Telegram.WebApp;
+    if (tg) { tg.expand(); tg.ready(); }
+
+    // API бота на другом Render-сервисе (адрес берём из config.js)
+    const rawApi = window.CROWN_SKY_API || '';
+    const API = rawApi && !rawApi.includes('PASTE_BOT_URL_HERE')
+      ? rawApi.replace(/\/$/, '')
+      : (location.protocol.startsWith('http') ? location.origin : '');
+
+    const params = new URLSearchParams(location.search);
+    const startParam = (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) || params.get('start') || '';
+    const user = tg && tg.initDataUnsafe ? tg.initDataUnsafe.user : null;
+    const initData = tg ? tg.initData : '';
+
+    const seatMatch = /^seat_(\d+)$/.exec(startParam);
+    let selectedSeat = seatMatch ? Number(seatMatch[1]) : null;
+    let currentStartParam = startParam;
+    let subscribers = [];
+    let loadedHalls = 1;
+
+    const seatLabelEl = document.getElementById('seatLabel');
+    const userLine = document.getElementById('userLine');
+    const nameInput = document.getElementById('nameInput');
+    const statusEl = document.getElementById('status');
+    const registerBtn = document.getElementById('registerBtn');
+    const confirmBtn = document.getElementById('confirmBtn');
+    const appSeatMap = document.getElementById('appSeatMap');
+
+    const CHAIR_PATH = 'M13.77,23.14V48H51.24V23.14a7.83,7.83,0,0,1,7.82-7.83V10.25a9.7,9.7,0,0,0-9.7-9.7H15.64a9.7,9.7,0,0,0-9.7,9.7v5.06a7.84,7.84,0,0,1,7.83,7.83Zm-13.16,0V55.87A5.33,5.33,0,0,0,5.94,61.2H59.06a5.33,5.33,0,0,0,5.33-5.33V23.14a5.32,5.32,0,1,0-10.65,0v27.4H11.27V23.14a5.33,5.33,0,1,0-10.66,0Z';
+
+    function seatName(id) {
+      const local = id % 126;
+      const hall = Math.floor(id / 126) + 1;
+      return 'Зал ' + hall + ', ' + (local >= 120
+        ? 'диван ' + (local - 119) + ' (11 ряд)'
+        : 'ряд ' + (Math.floor(local / 12) + 1) + ', место ' + (local % 12 + 1));
+    }
+    function updateSeatLabel() {
+      seatLabelEl.textContent = selectedSeat != null ? seatName(selectedSeat) : 'Место не выбрано';
+    }
+    function avatarEl(sub) {
+      const el = document.createElement(sub?.photo_url ? 'img' : 'span');
+      el.className = 'seat-av';
+      if (sub?.photo_url) { el.src = sub.photo_url; el.alt = ''; }
+      else {
+        el.textContent = String(sub?.name || sub?.first_name || 'П').trim()[0].toUpperCase();
+        el.style.background = 'linear-gradient(135deg,#2a9df4,#164a7a)';
+      }
+      return el;
+    }
+    function renderSeats() {
+      appSeatMap.innerHTML = '';
+      for (let h = 0; h < loadedHalls; h++) {
+        const title = document.createElement('div');
+        title.className = 'hall-title';
+        title.textContent = 'Зал ' + (h + 1);
+        appSeatMap.appendChild(title);
+        const base = h * 126;
+        for (let r = 0; r < 10; r++) {
+          const row = document.createElement('div');
+          row.className = 'seat-row';
+          for (let c = 0; c < 12; c++) row.appendChild(makeSeat(base + r * 12 + c, false));
+          appSeatMap.appendChild(row);
+        }
+        const row = document.createElement('div');
+        row.className = 'seat-row';
+        for (let d = 0; d < 6; d++) row.appendChild(makeSeat(base + 120 + d, true));
+        appSeatMap.appendChild(row);
+      }
+
+      // Аватарки подтверждённых пилотов
+      subscribers.forEach(sub => {
+        if (sub.seat == null) return;
+        const btn = appSeatMap.querySelector('.seat[data-id="' + sub.seat + '"]');
+        if (!btn || !btn.classList.contains('taken')) return;
+        const isDouble = btn.classList.contains('double');
+        if (!isDouble && btn.querySelector('.seat-av')) return;
+        if (isDouble && btn.querySelectorAll('.seat-av').length >= 2) return;
+        const av = avatarEl(sub);
+        if (isDouble) {
+          av.classList.add(btn.querySelectorAll('.seat-av').length ? 'av-r' : 'av-l');
+        }
+        btn.appendChild(av);
+      });
+    }
+    function makeSeat(id, double) {
+      const mine = subscribers.some(s => Number(s.seat) === id);
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'seat' + (double ? ' double' : '') + (mine ? ' taken' : '') + (selectedSeat === id ? ' selected' : '');
+      b.dataset.id = id;
+      b.disabled = mine;
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('viewBox', '0 0 63.78 60.65');
+      svg.innerHTML = '<path class="chair" d="' + CHAIR_PATH + '"/>';
+      b.appendChild(svg);
+      b.addEventListener('click', () => {
+        if (mine) return;
+        selectedSeat = id;
+        currentStartParam = 'seat_' + id;
+        renderSeats();
+        updateSeatLabel();
+        tg && tg.HapticFeedback && tg.HapticFeedback.selectionChanged && tg.HapticFeedback.selectionChanged();
+      });
+      return b;
+    }
+    async function loadSubscribers() {
+      try {
+        const res = await fetch(API + '/api/subscribers');
+        const data = await res.json();
+        if (data.ok && Array.isArray(data.items)) subscribers = data.items;
+      } catch (e) {}
+      renderSeats();
+    }
+    updateSeatLabel();
+    loadSubscribers();
+
+    const moreBtn = document.getElementById('moreHallsBtn');
+    if (moreBtn) moreBtn.addEventListener('click', () => {
+      loadedHalls++;
+      if (API) fetch(API + '/api/halls?offset=' + loadedHalls + '&limit=1').catch(() => {});
+      renderSeats();
+    });
+    if (user) {
+      userLine.textContent = 'Пилот: ' + (user.first_name || user.username || 'Гость');
+      if (!nameInput.value) nameInput.value = user.first_name || user.username || '';
+    } else {
+      document.getElementById('demoHint').style.display = 'block';
+      userLine.textContent = 'Откройте это приложение из Telegram-бота.';
+      registerBtn.disabled = true;
+      confirmBtn.disabled = true;
+    }
+
+    function showStatus(text, ok) {
+      statusEl.textContent = text;
+      statusEl.className = 'status show ' + (ok ? 'ok' : 'err');
+    }
+
+    registerBtn.addEventListener('click', async () => {
+      registerBtn.disabled = true;
+      try {
+        const res = await fetch(API + '/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ initData, name: nameInput.value.trim(), startParam: currentStartParam })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) {
+          throw new Error(data.error === 'seat_taken' ? 'Это место уже занято — выбери другое'
+            : (data.error || 'Ошибка регистрации'));
+        }
+        showStatus(data.status === 'confirmed'
+          ? '✅ Регистрация уже подтверждена. Жди приглашения в бета-тест!'
+          : '✅ Данные сохранены. Теперь нажми «Подтвердить регистрацию» в боте.', true);
+        tg && tg.HapticFeedback && tg.HapticFeedback.notificationOccurred('success');
+      } catch (err) {
+        showStatus('⚠️ ' + err.message, false);
+      } finally {
+        registerBtn.disabled = false;
+      }
+    });
+
+    confirmBtn.addEventListener('click', async () => {
+      confirmBtn.disabled = true;
+      try {
+        const res = await fetch(API + '/api/confirm', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ initData })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) throw new Error(data.error || 'Сначала выбери место');
+        showStatus('🎉 Регистрация подтверждена! Корабль «Гуль» ждёт первых пилотов.', true);
+        tg && tg.HapticFeedback && tg.HapticFeedback.notificationOccurred('success');
+      } catch (err) {
+        showStatus('⚠️ ' + err.message, false);
+      } finally {
+        confirmBtn.disabled = false;
+      }
+    });
+
+    async function loadNews() {
+      const box = document.getElementById('newsList');
+      try {
+        const res = await fetch(API + '/api/news');
+        const data = await res.json();
+        if (!data.ok || !data.items.length) { box.innerHTML = '<div class="muted">Новостей пока нет.</div>'; return; }
+        box.innerHTML = data.items.map(n =>
+          '<div class="news-item"><b>' + escapeHtml(n.title) + '</b><span>' + escapeHtml(n.body) + '</span></div>'
+        ).join('');
+      } catch (err) {
+        box.innerHTML = '<div class="muted">Не удалось загрузить новости.</div>';
+      }
+    }
+
+    function escapeHtml(s) {
+      return String(s || '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+    }
+
+    async function loadStats() {
+      const box = document.getElementById('pilotCount');
+      try {
+        const res = await fetch(API + '/api/stats');
+        const data = await res.json();
+        if (data.ok) box.textContent = '👥 Уже ' + data.waiting + ' пилотов в списке';
+      } catch (e) {}
+    }
+    loadNews();
+    loadStats();
+  </script>
+</body>
+</html>
