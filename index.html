@@ -645,9 +645,7 @@ document.getElementById('playBtn').addEventListener('click', () => {
   // ЗАМЕНИТЕ: username вашего telegram-бота без @
   const BOT_USERNAME = 'crown_sky_bot';
   // Адрес API бота на Render: оттуда берём аватарки подписчиков и записки
-  const API_BASE = (window.CROWN_SKY_API && !window.CROWN_SKY_API.includes('PASTE_BOT_URL_HERE'))
-    ? window.CROWN_SKY_API.replace(/\/$/, '')
-    : (location.protocol.startsWith('http') ? location.origin : '');
+  const API_BASE = 'https://bot-2bdu.onrender.com';
   const SUBSCRIBERS_URL = API_BASE ? API_BASE + '/api/subscribers' : '';
   let subscribers = Array.isArray(window.CROWN_SKY_SUBSCRIBERS) ? window.CROWN_SKY_SUBSCRIBERS : [];
   const NAMES = ['Аня','Макс','Лиза','Илья','Соня','Артём','Ника','Даня','Полина','Кирилл','Вера','Тимур'];
@@ -957,9 +955,7 @@ document.getElementById('playBtn').addEventListener('click', () => {
   const input = document.getElementById('reviewText');
   if (!chat || !form || !input) return;
 
-  const API_BASE = (window.CROWN_SKY_API && !window.CROWN_SKY_API.includes('PASTE_BOT_URL_HERE'))
-    ? window.CROWN_SKY_API.replace(/\/$/, '')
-    : (location.protocol.startsWith('http') ? location.origin : '');
+  const API_BASE = 'https://bot-2bdu.onrender.com';
   const KEY = 'crownsky_reviews_v1';
   const emptyNote = () => {
     const d = document.createElement('div');

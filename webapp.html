@@ -134,11 +134,8 @@
     const tg = window.Telegram && window.Telegram.WebApp;
     if (tg) { tg.expand(); tg.ready(); }
 
-    // API бота на другом Render-сервисе (адрес берём из config.js)
-    const rawApi = window.CROWN_SKY_API || '';
-    const API = rawApi && !rawApi.includes('PASTE_BOT_URL_HERE')
-      ? rawApi.replace(/\/$/, '')
-      : (location.protocol.startsWith('http') ? location.origin : '');
+    // API бота на Render — один адрес для сайта и Mini App
+    const API = 'https://bot-2bdu.onrender.com';
 
     const params = new URLSearchParams(location.search);
     const startParam = (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) || params.get('start') || '';
