@@ -86,6 +86,8 @@
     .hall-title{display:none;text-align:center;color:var(--gold);font-weight:800;font-size:.95rem;margin:14px 0 8px}
     .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;background:#3f55b0;margin-right:4px}
     .legend .taken{background:#262626}.legend .sel{background:var(--gold)}
+    .top-block-app{margin:0 0 14px;padding:0;background:none;border:0;border-radius:0;box-shadow:none}
+    .top-block-app h2{margin:0 0 8px;font-size:1.05rem;color:var(--gold)}
     .top-podium{display:flex;gap:8px;overflow-x:auto;padding:14px 0 6px;scrollbar-width:thin}
     .top-item{position:relative;width:62px;flex:none;text-align:center}
     .top-circle{width:58px;height:58px;margin:0 auto;border-radius:50%;border:3px solid rgba(255,255,255,.92);
@@ -127,16 +129,15 @@
     </div>
 
     <div class="card">
-      <h2>🏆 Топ пригласивших</h2>
-      <div class="muted" style="margin:-4px 0 10px;line-height:1.4">Топ-10 получат эксклюзивные призы в игре — детали объявим отдельно.</div>
-      <div id="appTop"><div class="muted">Загружаем…</div></div>
-    </div>
-
-    <div class="card">
       <h2>🎬 Карта мест</h2>
       <div class="seat-map" id="appSeatMap"></div>
       <button class="btn ghost" id="moreHallsBtn" type="button">Показать ещё зал ↓</button>
       <div class="legend"><span><i></i>Свободно</span><span><i class="taken"></i>Занято</span><span><i class="sel"></i>Твоё место</span></div>
+    </div>
+
+    <div class="top-block-app">
+      <h2>🏆 Топ по приглашениям</h2>
+      <div id="appTop"></div>
     </div>
 
     <div class="card" id="ticketCard">
@@ -467,10 +468,7 @@
         const data = await res.json();
         if (!res.ok || !data.ok || !Array.isArray(data.items)) throw new Error('top');
         box.innerHTML = '';
-        if (!data.items.length) {
-          box.innerHTML = '<div class="muted" style="text-align:center">Топ пока пуст — пригласи друзей первым.</div>';
-          return;
-        }
+        if (!data.items.length) { box.innerHTML = ''; return; }
         const podium = document.createElement('div');
         podium.className = 'top-podium';
         data.items.forEach((p, i) => {
@@ -509,7 +507,7 @@
         });
         box.appendChild(podium);
       } catch (e) {
-        box.innerHTML = '<div class="muted" style="text-align:center">Не удалось загрузить топ.</div>';
+        box.innerHTML = '';
       }
     }
     loadNews();
