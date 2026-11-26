@@ -297,6 +297,9 @@
           throw new Error(confirmData.error || 'Не удалось подтвердить билет');
         }
         showStatus('🎉 Место занято! Билет ' + (confirmData.ticket_no || '') + ' подтверждён. Корабль «Гуль» ждёт первых пилотов.', true);
+        // Сразу обновляем карту: новое место и аватарка появляются без перезагрузки
+        await loadSubscribers();
+        loadStats();
         tg && tg.HapticFeedback && tg.HapticFeedback.notificationOccurred('success');
       } catch (err) {
         showStatus('⚠️ ' + err.message, false);
