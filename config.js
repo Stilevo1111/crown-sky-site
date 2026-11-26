@@ -1,3 +1,2 @@
-// Сайт, Mini App и API лежат на одном домене.
-// Адрес API определяется автоматически как location.origin — менять ничего не нужно.
-window.CROWN_SKY_API = '';
+// Статический сайт на Render обращается к API бота на другом сервисе.
+window.CROWN_SKY_API = 'https://bot-2bdu.onrender.com';
