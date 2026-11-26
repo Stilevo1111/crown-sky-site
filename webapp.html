@@ -67,7 +67,7 @@
     .seat svg{position:absolute;inset:0;width:100%;height:100%}
     .seat .chair{fill:#3f55b0;transition:fill .15s}
     .seat:hover:not(.taken){transform:translateY(-2px)}
-    .seat:hover:not(.taken) .chair,.seat:focus-visible:not(.taken) .chair{fill:var(--gold)}
+    .seat:hover:not(.taken):not(.partial) .chair,.seat:focus-visible:not(.taken):not(.partial) .chair{fill:#00d2ff}
     .seat:active:not(.taken) .chair{fill:var(--gold2)}
     .seat.taken .chair{fill:#262626}
     /* Диван с одним пилотом: второе место ещё свободно */
@@ -83,6 +83,9 @@
       transform:translateX(-50%);margin-bottom:4px;padding:4px 8px;border-radius:8px;
       background:#0e2a4a;color:#fff;font-size:.65rem;font-weight:800;white-space:nowrap;
       z-index:35;pointer-events:none;box-shadow:0 4px 10px rgba(0,0,0,.25)}
+    /* Диваны с пилотами — золотые */
+    .seat.double.partial .chair,.seat.double.taken .chair{fill:var(--gold)}
+    .seat.double.partial .chair{stroke:var(--gold);stroke-width:2px}
     .seat.double .seat-av{width:44%;max-width:30px;aspect-ratio:1;height:auto;position:absolute;top:50%;transform:translateY(-50%)}
     .seat.double .av-l{left:4%}.seat.double .av-r{right:4%}
     .legend{display:flex;gap:14px;justify-content:center;margin-top:10px;font-size:.72rem;opacity:.8}
