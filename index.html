@@ -189,7 +189,7 @@ section{padding:84px 0}
 .tg-gate button{width:100%;border:0;border-radius:18px;padding:9px 12px;font-weight:800;cursor:pointer;background:linear-gradient(180deg,#ffc93c,#ff9d2e);color:#0e2a4a}
 .tg-gate a{display:inline-block;margin-top:8px;color:var(--gold);font-weight:800;text-decoration:none;font-size:.76rem}
 .tg-gate .gate-msg{color:#ffd88a;font-weight:700;min-height:1em;margin:6px 0 0}
-.top-block{margin-top:20px;padding:16px;border-radius:18px;background:rgba(10,36,66,.55);color:#eaf8ff}
+.top-block{margin:0 0 18px;padding:16px;border-radius:18px;background:rgba(10,36,66,.55);color:#eaf8ff}
 .top-block h3{margin:0 0 6px;font-family:'Fredoka',sans-serif;font-size:1rem;color:var(--gold)}
 .top-prize{font-size:.74rem;opacity:.8;margin:0 0 10px;line-height:1.4}
 .top-podium{display:flex;gap:8px;overflow-x:auto;padding:14px 0 6px;scrollbar-width:thin}
@@ -428,6 +428,11 @@ footer{background:var(--deep);color:#bcd9f2;padding:56px 0 30px}
     </div>
     <!-- Карта мест прямо под главной кнопкой -->
     <div class="cinema-embed" id="cinema">
+      <div class="top-block" id="topBlock">
+        <h3>🏆 Топ пригласивших</h3>
+        <p class="top-prize">Топ-10 получат эксклюзивные призы в игре — детали объявим отдельно.</p>
+        <div class="top-list" id="topList"><div class="muted" style="text-align:center">Загружаем…</div></div>
+      </div>
       <div class="cinema-board">
         <div class="hall">
           <div class="seats-scroll">
@@ -476,11 +481,6 @@ footer{background:var(--deep);color:#bcd9f2;padding:56px 0 30px}
                 </div>
               </div>
             </div>
-          </div>
-          <div class="top-block" id="topBlock">
-            <h3>🏆 Топ пригласивших</h3>
-            <p class="top-prize">Топ-10 получат эксклюзивные призы в игре — детали объявим отдельно.</p>
-            <div class="top-list" id="topList"><div class="muted" style="text-align:center">Загружаем…</div></div>
           </div>
         </aside>
       </div>
