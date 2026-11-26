@@ -60,7 +60,8 @@
     .news-item span{font-size:.86rem;opacity:.8;line-height:1.45}
     .hint{text-align:center;font-size:.78rem;opacity:.6;margin-top:18px}
     .seat-map{display:grid;gap:4px;width:100%;overflow:hidden;padding:4px 0}
-    .seat-row{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:4px;align-items:center;width:100%}
+    .seat-row{--gap:4px;--col:calc((100% - 11 * var(--gap)) / 12);
+      display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:var(--gap);align-items:center;width:100%}
     .row-label{display:none}
     .seat{width:100%;height:auto;aspect-ratio:63.78/60.65;border:0;background:transparent;padding:0;position:relative;cursor:pointer;
       display:flex;align-items:center;justify-content:center;transition:transform .15s}
@@ -74,7 +75,7 @@
     .seat.partial .chair{fill:#2f6bb5;stroke:var(--gold);stroke-width:2px}
     .seat.selected .chair{fill:var(--gold)}
     .seat.double{grid-column:span 2;width:100%}
-    .seat-av{position:relative;z-index:2;width:70%;max-width:28px;aspect-ratio:1;height:auto;border-radius:50%;object-fit:cover;
+    .seat-av{position:relative;z-index:2;width:calc(var(--col) * 0.72);max-width:28px;aspect-ratio:1;height:auto;border-radius:50%;object-fit:cover;
       border:2px solid rgba(255,255,255,.95);font-size:.72rem;font-weight:800;color:#fff;
       display:flex;align-items:center;justify-content:center;transition:transform .18s ease, box-shadow .18s ease;
       box-shadow:0 2px 6px rgba(0,0,0,.35);cursor:pointer}
@@ -86,7 +87,7 @@
     /* Диваны с пилотами — золотые */
     .seat.double.partial .chair,.seat.double.taken .chair{fill:var(--gold)}
     .seat.double.partial .chair{stroke:var(--gold);stroke-width:2px}
-    .seat.double .seat-av{width:35%;max-width:28px;aspect-ratio:1;height:auto;position:absolute;top:50%;transform:translateY(-50%)}
+    .seat.double .seat-av{width:calc(var(--col) * 0.72);max-width:28px;aspect-ratio:1;height:auto;position:absolute;top:50%;transform:translateY(-50%)}
     .seat.double .av-l{left:4%}.seat.double .av-r{right:4%}
     .legend{display:flex;gap:14px;justify-content:center;margin-top:10px;font-size:.72rem;opacity:.8}
     .hall-title{display:none;text-align:center;color:var(--gold);font-weight:800;font-size:.95rem;margin:14px 0 8px}
@@ -119,7 +120,7 @@
       text-align:center;text-shadow:0 2px 6px rgba(0,0,0,.7);pointer-events:none;line-height:1.2}
     .avatar-preview-name.show{display:block}
     @media (max-width:420px){
-      .seat-row{gap:3px}
+      .seat-row{--gap:3px}
       .seat-av{font-size:.6rem;border-width:1.5px}
       .seat-av:hover,.seat-av:focus-visible{z-index:30}
     }
