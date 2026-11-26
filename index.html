@@ -218,6 +218,12 @@ section{padding:84px 0}
 .seat.double .seat-avatar{position:absolute;top:50%;margin-top:-10px;width:20px;height:20px}
 .seat.double .av-left{left:14px}
 .seat.double .av-right{right:14px}
+.seat-avatar{transition:transform .15s}
+.seat:hover .seat-avatar{transform:scale(1.35);z-index:4}
+.seat[data-name]:hover::after{content:attr(data-name);position:absolute;bottom:100%;left:50%;
+  transform:translateX(-50%);margin-bottom:4px;padding:4px 8px;border-radius:8px;
+  background:#0e2a4a;color:#fff;font-size:.68rem;font-weight:800;white-space:nowrap;
+  z-index:5;pointer-events:none;box-shadow:0 4px 10px rgba(0,0,0,.25)}
 .double-row{margin-top:4px}
 .hall-legend{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:14px;font-size:.76rem;font-weight:800;color:#eaf8ff}
 .hall-legend i{display:inline-block;width:19px;height:21px;margin-right:6px;vertical-align:-6px}
@@ -654,17 +660,12 @@ document.getElementById('playBtn').addEventListener('click', () => {
   // Занятые места — только реальные подтверждённые подписчики и ваши локальные брони
   const taken = new Set();
 
-  // Подписчики из window.CROWN_SKY_SUBSCRIBERS тоже должны занимать места
-  subscribers.forEach(s => taken.add(Number(s.seat)));
-
   // Подписчики Telegram: реальные avatar-фото подтянутся, когда API будет готов
   if (SUBSCRIBERS_URL) {
     fetch(SUBSCRIBERS_URL)
       .then(r => r.json())
       .then(data => {
         subscribers = Array.isArray(data) ? data : (data.subscribers || []);
-        // Подтверждённые в боте места должны быть заняты и на сайте
-        subscribers.forEach(s => taken.add(Number(s.seat)));
         render();
       })
       .catch(() => {});
@@ -684,15 +685,18 @@ document.getElementById('playBtn').addEventListener('click', () => {
   const saveMine = () => { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(mine)); } catch (e) {} };
 
   const initials = name => name.trim().split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase();
-  // slot: 0 — основной пассажир, 1 — второй на диване
+  // slot: 1 — основной пассажир, 2 — второй на диване
   function avatarFor(id, slot) {
-    slot = slot || 0;
-    const sub = subscribers.find(s => Number(s.seat) === id && (slot === 0 || Number(s.slot || 0) === slot - 1));
-    if (sub && sub.photo_url) return { img: sub.photo_url };
+    const subs = subscribers.filter(s => Number(s.seat) === id);
+    const sub = subs.find(s => Number(s.slot || 1) === slot) || subs[slot - 1];
     const own = mine.find(v => v.id === id);
-    const name = (slot === 0 && own && own.name) || (sub && sub.name) || NAMES[(id + slot * 5) % NAMES.length];
+    const name = (slot === 1 && own && own.name) || (sub && sub.name) || NAMES[(id + slot * 5) % NAMES.length];
+    if (sub && sub.photo_url) return { img: sub.photo_url, name: name };
     const hue = ((id + slot * 13) * 47) % 360;
-    return { text: initials(name), bg: 'linear-gradient(135deg,hsl(' + hue + ' 65% 55%),hsl(' + ((hue + 45) % 360) + ' 65% 40%))' };
+    return {
+      text: initials(name), name: name,
+      bg: 'linear-gradient(135deg,hsl(' + hue + ' 65% 55%),hsl(' + ((hue + 45) % 360) + ' 65% 40%))'
+    };
   }
   function appendAvatar(btn, a, extraClass) {
     const av = document.createElement(a.img ? 'img' : 'span');
@@ -737,26 +741,28 @@ document.getElementById('playBtn').addEventListener('click', () => {
   function makeSeat(id, double) {
     const b = document.createElement('button');
     b.type = 'button';
+    const subs = subscribers.filter(s => Number(s.seat) === id);
+    const occupied = subs.length > 0;
+    const full = subs.length >= (double ? 2 : 1);
     b.dataset.id = id;
-    b.className = 'seat' + (double ? ' double' : '') + (taken.has(id) ? ' taken' : '') + (selected === id ? ' selected' : '');
-    b.disabled = taken.has(id);
+    if (occupied) b.dataset.name = subs.map(s => s.name || s.first_name || 'Пилот').join(' + ');
+    b.className = 'seat' + (double ? ' double' : '') + ((taken.has(id) || occupied) ? ' taken' : '') + (selected === id ? ' selected' : '');
+    b.disabled = taken.has(id) || full;
     const local = id % HALL_SIZE;
     const hall = Math.floor(id / HALL_SIZE) + 1;
     const label = local >= SINGLE_TOTAL
       ? 'Зал ' + hall + ', диван ' + (local - SINGLE_TOTAL + 1)
       : 'Зал ' + hall + ', ряд ' + (Math.floor(local / COLS) + 1) + ', место ' + (local % COLS + 1);
-    b.setAttribute('aria-label', label + (taken.has(id) ? ' — занято' : ''));
+    b.setAttribute('aria-label', label + (full ? ' — занято' : (occupied ? ' — есть свободное место' : '')));
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('class', 'cinema-seat');
     svg.setAttribute('viewBox', double ? '0 0 119.78 60.64' : '0 0 63.78 60.65');
     svg.innerHTML = '<path class="chair" d="' + (double ? SOFA_PATH : CHAIR_PATH) + '"/>';
     b.appendChild(svg);
-    if (taken.has(id)) {
-      if (double) {
-        appendAvatar(b, avatarFor(id, 0), 'av-left');
-        appendAvatar(b, avatarFor(id, 1), 'av-right');
-      } else {
-        appendAvatar(b, avatarFor(id, 0));
+    if (occupied) {
+      const slots = double ? Math.min(subs.length, 2) : 1;
+      for (let s = 1; s <= slots; s++) {
+        appendAvatar(b, avatarFor(id, s), double ? (s === 1 ? 'av-left' : 'av-right') : '');
       }
     }
     return b;

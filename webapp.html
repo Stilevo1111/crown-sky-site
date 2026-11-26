@@ -70,7 +70,12 @@
     .seat.double{grid-column:span 2;width:64px}
     .seat-av{position:relative;z-index:1;width:16px;height:16px;border-radius:50%;object-fit:cover;
       border:1px solid rgba(255,255,255,.8);font-size:.5rem;font-weight:800;color:#fff;
-      display:flex;align-items:center;justify-content:center}
+      display:flex;align-items:center;justify-content:center;transition:transform .15s}
+    .seat:hover .seat-av{transform:scale(1.35);z-index:4}
+    .seat[data-name]:hover::after{content:attr(data-name);position:absolute;bottom:100%;left:50%;
+      transform:translateX(-50%);margin-bottom:4px;padding:4px 8px;border-radius:8px;
+      background:#0e2a4a;color:#fff;font-size:.65rem;font-weight:800;white-space:nowrap;
+      z-index:5;pointer-events:none;box-shadow:0 4px 10px rgba(0,0,0,.25)}
     .seat.double .seat-av{width:16px;height:16px;position:absolute;top:2px}
     .seat.double .av-l{left:8px}.seat.double .av-r{right:8px}
     .legend{display:flex;gap:14px;justify-content:center;margin-top:10px;font-size:.72rem;opacity:.8}
@@ -201,34 +206,37 @@
         appSeatMap.appendChild(row);
       }
 
-      // Аватарки подтверждённых пилотов
+      // Аватарки подтверждённых пилотов (на диване — до двух)
       subscribers.forEach(sub => {
         if (sub.seat == null) return;
         const btn = appSeatMap.querySelector('.seat[data-id="' + sub.seat + '"]');
-        if (!btn || !btn.classList.contains('taken')) return;
+        if (!btn) return;
         const isDouble = btn.classList.contains('double');
-        if (!isDouble && btn.querySelector('.seat-av')) return;
-        if (isDouble && btn.querySelectorAll('.seat-av').length >= 2) return;
+        const count = btn.querySelectorAll('.seat-av').length;
+        if (!isDouble && count >= 1) return;
+        if (isDouble && count >= 2) return;
         const av = avatarEl(sub);
-        if (isDouble) {
-          av.classList.add(btn.querySelectorAll('.seat-av').length ? 'av-r' : 'av-l');
-        }
+        if (isDouble) av.classList.add(count ? 'av-r' : 'av-l');
         btn.appendChild(av);
+        const name = sub.name || sub.first_name || 'Пилот';
+        btn.dataset.name = btn.dataset.name ? btn.dataset.name + ' + ' + name : name;
       });
     }
     function makeSeat(id, double) {
-      const mine = subscribers.some(s => Number(s.seat) === id);
+      const subs = subscribers.filter(s => Number(s.seat) === id);
+      const full = subs.length >= (double ? 2 : 1);
       const b = document.createElement('button');
       b.type = 'button';
-      b.className = 'seat' + (double ? ' double' : '') + (mine ? ' taken' : '') + (selectedSeat === id ? ' selected' : '');
+      b.className = 'seat' + (double ? ' double' : '') + (subs.length ? ' taken' : '') + (selectedSeat === id ? ' selected' : '');
       b.dataset.id = id;
-      b.disabled = mine;
+      if (subs.length) b.dataset.name = subs.map(s => s.name || s.first_name || 'Пилот').join(' + ');
+      b.disabled = full;
       const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
       svg.setAttribute('viewBox', double ? '0 0 119.78 60.64' : '0 0 63.78 60.65');
       svg.innerHTML = '<path class="chair" d="' + (double ? SOFA_PATH : CHAIR_PATH) + '"/>';
       b.appendChild(svg);
       b.addEventListener('click', () => {
-        if (mine) return;
+        if (full) return;
         selectedSeat = id;
         currentStartParam = 'seat_' + id;
         renderSeats();
