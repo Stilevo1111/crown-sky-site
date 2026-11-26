@@ -648,14 +648,8 @@ document.getElementById('playBtn').addEventListener('click', () => {
   const seatMap = document.getElementById('seatMap');
   if (!seatMap) return;
 
-  // Псевдослучайный, но стабильный «заполненный» зал
-  const hash = i => { const x = Math.sin(i * 12.9898 + 4.1414) * 43758.5453; return x - Math.floor(x); };
+  // Занятые места — только реальные подтверждённые подписчики и ваши локальные брони
   const taken = new Set();
-  function fillHall(h) {
-    const from = h * HALL_SIZE;
-    for (let i = from; i < from + HALL_SIZE; i++) if (hash(i) < 0.72) taken.add(i);
-  }
-  fillHall(0);
 
   // Подписчики из window.CROWN_SKY_SUBSCRIBERS тоже должны занимать места
   subscribers.forEach(s => taken.add(Number(s.seat)));
@@ -816,7 +810,6 @@ document.getElementById('playBtn').addEventListener('click', () => {
     armedForMore = false;
     lastHallLoad = now;
     const h = loadedHalls++;
-    fillHall(h);
     if (API_BASE) fetch(API_BASE + '/api/halls?offset=' + (h + 1) + '&limit=1').catch(() => {});
     render();
     loadingHalls = false;
@@ -958,12 +951,14 @@ document.getElementById('playBtn').addEventListener('click', () => {
     ? window.CROWN_SKY_API.replace(/\/$/, '')
     : (location.protocol.startsWith('http') ? location.origin : '');
   const KEY = 'crownsky_reviews_v1';
-  const seed = [
-    { name: 'Аня', text: 'Попробовала полёт — небо просто космос! Очень жду бета-тест.', time: '12:04' },
-    { name: 'Макс', text: 'Хочу собрать корабль под мортиры и летать с друзьями.', time: '12:07' },
-    { name: 'Лиза', text: 'Оставлю записку: сделайте больше островов с уютными домиками 🙂', time: '12:11' },
-    { name: 'Кирилл', text: 'Когда уже можно будет зайти? Готов тестировать каждый вечер.', time: '12:15' }
-  ];
+  const emptyNote = () => {
+    const d = document.createElement('div');
+    d.className = 'muted';
+    d.style.textAlign = 'center';
+    d.style.padding = '20px';
+    d.textContent = 'Пока нет записок — будьте первым.';
+    chat.appendChild(d);
+  };
 
   const fmtTime = value => {
     const d = value ? new Date(value) : new Date();
@@ -995,9 +990,9 @@ document.getElementById('playBtn').addEventListener('click', () => {
   }
 
   function showFallback() {
-    seed.forEach(addMessage);
     let notes = [];
     try { const raw = JSON.parse(localStorage.getItem(KEY) || '[]'); notes = Array.isArray(raw) ? raw : []; } catch (e) {}
+    if (!notes.length) emptyNote();
     notes.forEach(n => addMessage({ text: String(n.text || ''), time: String(n.time || ''), mine: true }));
     chat.scrollTop = chat.scrollHeight;
   }
@@ -1007,8 +1002,9 @@ document.getElementById('playBtn').addEventListener('click', () => {
     try {
       const res = await fetch(API_BASE + '/api/reviews');
       const data = await res.json();
-      if (data.ok && data.items.length) {
+      if (data.ok) {
         chat.innerHTML = '';
+        if (!data.items.length) emptyNote();
         data.items.slice().reverse().forEach(item => addMessage({
           name: item.name, text: item.text, time: fmtTime(item.created_at), photo_url: item.photo_url
         }));
