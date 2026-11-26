@@ -69,28 +69,37 @@
     .seat.taken .chair{fill:#262626}
     .seat.selected .chair{fill:var(--gold)}
     .seat.double{grid-column:span 2;width:64px}
-    .seat-av{position:relative;z-index:1;width:16px;height:16px;border-radius:50%;object-fit:cover;
-      border:1px solid rgba(255,255,255,.8);font-size:.5rem;font-weight:800;color:#fff;
-      display:flex;align-items:center;justify-content:center;transition:transform .15s}
-    .seat:hover .seat-av{transform:scale(1.35);z-index:4}
+    .seat-av{position:relative;z-index:2;width:24px;height:24px;border-radius:50%;object-fit:cover;
+      border:2px solid rgba(255,255,255,.95);font-size:.72rem;font-weight:800;color:#fff;
+      display:flex;align-items:center;justify-content:center;transition:transform .18s ease, box-shadow .18s ease;
+      box-shadow:0 2px 6px rgba(0,0,0,.35);cursor:pointer}
+    .seat-av:hover,.seat-av:focus-visible{transform:scale(1.6);z-index:30;box-shadow:0 6px 18px rgba(0,0,0,.4)}
     .seat[data-name]:hover::after{content:attr(data-name);position:absolute;bottom:100%;left:50%;
       transform:translateX(-50%);margin-bottom:4px;padding:4px 8px;border-radius:8px;
       background:#0e2a4a;color:#fff;font-size:.65rem;font-weight:800;white-space:nowrap;
-      z-index:5;pointer-events:none;box-shadow:0 4px 10px rgba(0,0,0,.25)}
-    .seat.double .seat-av{width:16px;height:16px;position:absolute;top:2px}
-    .seat.double .av-l{left:8px}.seat.double .av-r{right:8px}
+      z-index:35;pointer-events:none;box-shadow:0 4px 10px rgba(0,0,0,.25)}
+    .seat.double .seat-av{width:22px;height:22px;position:absolute;top:50%;margin-top:-11px}
+    .seat.double .av-l{left:6px}.seat.double .av-r{right:6px}
     .legend{display:flex;gap:14px;justify-content:center;margin-top:10px;font-size:.72rem;opacity:.8}
     .hall-title{text-align:center;color:var(--gold);font-weight:800;font-size:.95rem;margin:14px 0 8px}
     .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;background:#3f55b0;margin-right:4px}
     .legend .taken{background:#262626}.legend .sel{background:var(--gold)}
+    .avatar-preview{position:fixed;display:none;width:140px;height:140px;border-radius:50%;object-fit:cover;
+      border:4px solid rgba(255,255,255,.96);box-shadow:0 12px 40px rgba(0,0,0,.45);z-index:9999;pointer-events:none;
+      background:#164a7a}
+    .avatar-preview.initial{display:none;align-items:center;justify-content:center;color:#fff;
+      font-family:'Fredoka',sans-serif;font-size:2.8rem;font-weight:800}
+    .avatar-preview.show{display:block}
+    .avatar-preview.initial.show{display:flex}
     @media (max-width:420px){
       .seat-row{grid-template-columns:repeat(12,22px);gap:3px}
       .row-label{display:none}
       .seat{width:22px;height:23px}
       .seat.double{width:47px}
-      .seat-av{width:12px;height:12px;font-size:.45rem}
-      .seat.double .seat-av{width:11px;height:11px;top:1px}
-      .seat.double .av-l{left:5px}.seat.double .av-r{right:5px}
+      .seat-av{width:16px;height:16px;font-size:.55rem;border-width:1.5px}
+      .seat.double .seat-av{width:14px;height:14px;margin-top:-7px;top:50%}
+      .seat.double .av-l{left:4px}.seat.double .av-r{right:4px}
+      .seat-av:hover,.seat-av:focus-visible{transform:scale(2.8)}
     }
   </style>
 </head>
@@ -169,6 +178,36 @@
     function updateSeatLabel() {
       seatLabelEl.textContent = selectedSeat != null ? seatName(selectedSeat) : 'Место не выбрано';
     }
+    // Большой просмотр аватарки при наведении
+    const avatarPreview = document.createElement('div');
+    avatarPreview.className = 'avatar-preview';
+    document.body.appendChild(avatarPreview);
+    function showAvatarPreview(av) {
+      const isImg = av.tagName === 'IMG';
+      avatarPreview.className = 'avatar-preview' + (isImg ? '' : ' initial') + ' show';
+      if (isImg) { avatarPreview.style.backgroundImage = `url("${av.src}")`; avatarPreview.style.backgroundSize = 'cover'; avatarPreview.style.backgroundPosition = 'center'; avatarPreview.style.background = '#164a7a'; avatarPreview.style.backgroundImage = `url("${av.src}")`; avatarPreview.textContent = ''; }
+      else { avatarPreview.style.backgroundImage = ''; avatarPreview.style.background = av.style.background || '#164a7a'; avatarPreview.textContent = av.textContent || ''; }
+      const r = av.getBoundingClientRect();
+      const size = 140;
+      let left = r.left + r.width / 2 - size / 2;
+      let top = r.top - size - 12;
+      if (top < 8) top = r.bottom + 12;
+      if (left < 8) left = 8;
+      if (left + size > window.innerWidth - 8) left = window.innerWidth - size - 8;
+      avatarPreview.style.left = left + 'px';
+      avatarPreview.style.top = top + 'px';
+      avatarPreview.style.width = size + 'px';
+      avatarPreview.style.height = size + 'px';
+    }
+    function hideAvatarPreview() { avatarPreview.className = 'avatar-preview'; avatarPreview.style.backgroundImage = ''; }
+    document.addEventListener('mouseover', e => {
+      const av = e.target.closest('.seat-av');
+      if (av) showAvatarPreview(av); else if (!e.target.closest('.avatar-preview')) hideAvatarPreview();
+    });
+    document.addEventListener('focusin', e => { const av = e.target.closest('.seat-av'); if (av) showAvatarPreview(av); });
+    document.addEventListener('mouseout', e => { if (e.target.closest('.seat-av')) hideAvatarPreview(); });
+    document.addEventListener('focusout', e => { if (e.target.closest('.seat-av')) hideAvatarPreview(); });
+
     function avatarEl(sub) {
       const el = document.createElement(sub?.photo_url ? 'img' : 'span');
       el.className = 'seat-av';
