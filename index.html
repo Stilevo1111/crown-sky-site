@@ -652,6 +652,9 @@ document.getElementById('playBtn').addEventListener('click', () => {
   }
   fillHall(0);
 
+  // Подписчики из window.CROWN_SKY_SUBSCRIBERS тоже должны занимать места
+  subscribers.forEach(s => taken.add(Number(s.seat)));
+
   // Подписчики Telegram: реальные avatar-фото подтянутся, когда API будет готов
   if (SUBSCRIBERS_URL) {
     fetch(SUBSCRIBERS_URL)
