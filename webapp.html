@@ -44,22 +44,23 @@
     .news-item span{font-size:.86rem;opacity:.8;line-height:1.45}
     .hint{text-align:center;font-size:.78rem;opacity:.6;margin-top:18px}
     .seat-map{display:grid;gap:4px;justify-content:center;overflow-x:auto;padding:4px 0}
-    .seat-row{display:grid;grid-template-columns:repeat(12,24px);gap:4px;align-items:center;justify-content:center}
-    .seat{width:24px;height:26px;border:0;background:transparent;padding:0;position:relative;cursor:pointer;
+    .seat-row{display:grid;grid-template-columns:16px repeat(12,30px) 16px;gap:4px;align-items:center;justify-content:center}
+    .row-label{font-size:.6rem;font-weight:800;opacity:.8;text-align:center;color:#fff}
+    .seat{width:30px;height:32px;border:0;background:transparent;padding:0;position:relative;cursor:pointer;
       display:flex;align-items:center;justify-content:center;transition:transform .15s}
     .seat svg{position:absolute;inset:0;width:100%;height:100%}
-    .seat .chair{fill:#5564f4}
+    .seat .chair{fill:#3f55b0}
     .seat.taken .chair{fill:#262626}
     .seat.selected .chair{fill:var(--gold)}
-    .seat.double{grid-column:span 2;width:52px}
+    .seat.double{grid-column:span 2;width:64px}
     .seat-av{position:relative;z-index:1;width:16px;height:16px;border-radius:50%;object-fit:cover;
       border:1px solid rgba(255,255,255,.8);font-size:.5rem;font-weight:800;color:#fff;
       display:flex;align-items:center;justify-content:center}
-    .seat.double .seat-av{width:14px;height:14px;position:absolute;top:2px}
+    .seat.double .seat-av{width:16px;height:16px;position:absolute;top:2px}
     .seat.double .av-l{left:8px}.seat.double .av-r{right:8px}
     .legend{display:flex;gap:14px;justify-content:center;margin-top:10px;font-size:.72rem;opacity:.8}
     .hall-title{text-align:center;color:var(--gold);font-weight:800;font-size:.95rem;margin:14px 0 8px}
-    .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;background:#5564f4;margin-right:4px}
+    .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;background:#3f55b0;margin-right:4px}
     .legend .taken{background:#262626}.legend .sel{background:var(--gold)}
   </style>
 </head>
@@ -128,6 +129,8 @@
 
     const CHAIR_PATH = 'M13.77,23.14V48H51.24V23.14a7.83,7.83,0,0,1,7.82-7.83V10.25a9.7,9.7,0,0,0-9.7-9.7H15.64a9.7,9.7,0,0,0-9.7,9.7v5.06a7.84,7.84,0,0,1,7.83,7.83Zm-13.16,0V55.87A5.33,5.33,0,0,0,5.94,61.2H59.06a5.33,5.33,0,0,0,5.33-5.33V23.14a5.32,5.32,0,1,0-10.65,0v27.4H11.27V23.14a5.33,5.33,0,1,0-10.66,0Z';
 
+    const SOFA_PATH = 'M56.12,2.84A9.7,9.7,0,0,1,59,9.7V47.49H13.66V22.58A7.83,7.83,0,0,0,5.9,14.76V9.7A9.69,9.69,0,0,1,15.57,0H49.26A9.7,9.7,0,0,1,56.12,2.84ZM61.9,9.7A9.69,9.69,0,0,1,71.57,0h33.69A9.7,9.7,0,0,1,115,9.7v5.06a7.83,7.83,0,0,0-7.83,7.82V47.49H61.9ZM9.62,18.84a5.34,5.34,0,0,1,1.54,3.74V50h98.51V22.58a5.31,5.31,0,0,1,10.62,0V55.32a5.32,5.32,0,0,1-5.3,5.32H5.83a5.21,5.21,0,0,1-2.07-.42,5.3,5.3,0,0,1-3.25-4.9V22.58a5.32,5.32,0,0,1,5.32-5.32H5.9A5.34,5.34,0,0,1,9.62,18.84Z';
+
     function seatName(id) {
       const local = id % 126;
       const hall = Math.floor(id / 126) + 1;
@@ -156,15 +159,20 @@
         title.textContent = 'Зал ' + (h + 1);
         appSeatMap.appendChild(title);
         const base = h * 126;
+        const label = (n) => { const s = document.createElement('span'); s.className = 'row-label'; s.textContent = n; return s; };
         for (let r = 0; r < 10; r++) {
           const row = document.createElement('div');
           row.className = 'seat-row';
+          row.appendChild(label(r + 1));
           for (let c = 0; c < 12; c++) row.appendChild(makeSeat(base + r * 12 + c, false));
+          row.appendChild(label(r + 1));
           appSeatMap.appendChild(row);
         }
         const row = document.createElement('div');
         row.className = 'seat-row';
+        row.appendChild(label(11));
         for (let d = 0; d < 6; d++) row.appendChild(makeSeat(base + 120 + d, true));
+        row.appendChild(label(11));
         appSeatMap.appendChild(row);
       }
 
@@ -191,8 +199,8 @@
       b.dataset.id = id;
       b.disabled = mine;
       const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-      svg.setAttribute('viewBox', '0 0 63.78 60.65');
-      svg.innerHTML = '<path class="chair" d="' + CHAIR_PATH + '"/>';
+      svg.setAttribute('viewBox', double ? '0 0 119.78 60.64' : '0 0 63.78 60.65');
+      svg.innerHTML = '<path class="chair" d="' + (double ? SOFA_PATH : CHAIR_PATH) + '"/>';
       b.appendChild(svg);
       b.addEventListener('click', () => {
         if (mine) return;
