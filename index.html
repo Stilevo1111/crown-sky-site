@@ -209,6 +209,9 @@ section{padding:84px 0}
 .seat:hover:not(.taken):not(.selected) .chair{fill:var(--gold)}
 .seat.taken{cursor:not-allowed}
 .seat.taken .chair{fill:#262626}
+/* Диван с одним пилотом: место ещё свободно — показываем отдельно от занятого */
+.seat.partial .chair{fill:#2f6bb5;stroke:var(--gold);stroke-width:2px}
+.seat.partial:hover .chair{fill:#3f7fcb}
 .seat.selected{transform:translateY(-2px)}
 .seat.selected .chair{fill:var(--gold);filter:drop-shadow(0 0 7px rgba(255,201,60,.95))}
 .seat-avatar{width:30px;height:30px;border-radius:50%;object-fit:cover;display:block;flex:none;z-index:2;
@@ -783,8 +786,8 @@ document.getElementById('playBtn').addEventListener('click', () => {
     const full = subs.length >= (double ? 2 : 1);
     b.dataset.id = id;
     if (occupied) b.dataset.name = subs.map(s => s.name || s.first_name || 'Пилот').join(' + ');
-    b.className = 'seat' + (double ? ' double' : '') + ((taken.has(id) || occupied) ? ' taken' : '') + (selected === id ? ' selected' : '');
-    b.disabled = taken.has(id) || full;
+    b.className = 'seat' + (double ? ' double' : '') + (full ? ' taken' : (occupied ? ' partial' : '')) + (selected === id ? ' selected' : '');
+    b.disabled = full;
     const local = id % HALL_SIZE;
     const hall = Math.floor(id / HALL_SIZE) + 1;
     const label = local >= SINGLE_TOTAL
@@ -909,7 +912,7 @@ document.getElementById('playBtn').addEventListener('click', () => {
   }
 
   bookBtn.addEventListener('click', () => {
-    if (selected === null || taken.has(selected)) return;
+    if (selected === null) return;
     const id = selected;
     const local = id % HALL_SIZE;
     const hall = Math.floor(id / HALL_SIZE) + 1;
@@ -917,7 +920,6 @@ document.getElementById('playBtn').addEventListener('click', () => {
     const place = local >= SINGLE_TOTAL ? local - SINGLE_TOTAL + 1 : local % COLS + 1;
     const name = (guestInput.value || '').trim().slice(0, 18) || 'Гость';
 
-    taken.add(id);
     mine.push({ id: id, name: name });
     saveMine();
 

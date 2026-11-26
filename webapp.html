@@ -67,6 +67,8 @@
     .seat:hover:not(.taken) .chair,.seat:focus-visible:not(.taken) .chair{fill:var(--gold)}
     .seat:active:not(.taken) .chair{fill:var(--gold2)}
     .seat.taken .chair{fill:#262626}
+    /* Диван с одним пилотом: второе место ещё свободно */
+    .seat.partial .chair{fill:#2f6bb5;stroke:var(--gold);stroke-width:2px}
     .seat.selected .chair{fill:var(--gold)}
     .seat.double{grid-column:span 2;width:64px}
     .seat-av{position:relative;z-index:2;width:24px;height:24px;border-radius:50%;object-fit:cover;
@@ -264,7 +266,7 @@
       const full = subs.length >= (double ? 2 : 1);
       const b = document.createElement('button');
       b.type = 'button';
-      b.className = 'seat' + (double ? ' double' : '') + (subs.length ? ' taken' : '') + (selectedSeat === id ? ' selected' : '');
+      b.className = 'seat' + (double ? ' double' : '') + (full ? ' taken' : (subs.length ? ' partial' : '')) + (selectedSeat === id ? ' selected' : '');
       b.dataset.id = id;
       b.disabled = full;
       const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
