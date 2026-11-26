@@ -220,7 +220,7 @@ section{padding:84px 0}
 .seat.double .seat-avatar{position:absolute;top:50%;margin-top:-14px;width:28px;height:28px}
 .seat.double .av-left{left:10px}
 .seat.double .av-right{right:10px}
-.seat-avatar:hover,.seat-avatar:focus-visible{transform:scale(1.6);z-index:30;box-shadow:0 6px 18px rgba(0,0,0,.4)}
+.seat-avatar:hover,.seat-avatar:focus-visible{z-index:30;box-shadow:0 6px 18px rgba(0,0,0,.4)}
 .seat[data-name]:hover::after{content:attr(data-name);position:absolute;bottom:100%;left:50%;
   transform:translateX(-50%);margin-bottom:4px;padding:4px 8px;border-radius:8px;
   background:#0e2a4a;color:#fff;font-size:.68rem;font-weight:800;white-space:nowrap;
@@ -312,7 +312,7 @@ section{padding:84px 0}
   .seat.double .av-left{left:6px}
   .seat.double .av-right{right:6px}
   .seat-avatar.initial{font-size:.6rem}
-  .seat-avatar:hover,.seat-avatar:focus-visible{transform:scale(2.8)}
+  .seat-avatar:hover,.seat-avatar:focus-visible{z-index:30}
   .hall-legend{gap:12px;font-size:.7rem}
   .ticket{padding:22px 20px 18px}
 }
@@ -720,7 +720,7 @@ document.getElementById('playBtn').addEventListener('click', () => {
   function showAvatarPreview(av) {
     const isImg = av.tagName === 'IMG';
     avatarPreview.className = 'avatar-preview' + (isImg ? '' : ' initial') + ' show';
-    if (isImg) { avatarPreview.style.background = '#164a7a'; avatarPreview.style.backgroundImage = `url("${av.src}")`; avatarPreview.style.backgroundSize = 'cover'; avatarPreview.style.backgroundPosition = 'center'; avatarPreview.textContent = ''; }
+    if (isImg) { avatarPreview.style.background = '#164a7a'; avatarPreview.style.backgroundImage = `url("${av.src.replace(/"/g, '%22')}")`; avatarPreview.style.backgroundSize = 'cover'; avatarPreview.style.backgroundPosition = 'center'; avatarPreview.textContent = ''; }
     else { avatarPreview.style.backgroundImage = ''; avatarPreview.style.background = av.style.background || '#164a7a'; avatarPreview.textContent = av.textContent || ''; }
     const r = av.getBoundingClientRect();
     const size = 140;
@@ -737,10 +737,10 @@ document.getElementById('playBtn').addEventListener('click', () => {
   function hideAvatarPreview() { avatarPreview.className = 'avatar-preview'; avatarPreview.style.backgroundImage = ''; }
   document.addEventListener('mouseover', e => {
     const av = e.target.closest('.seat-avatar');
-    if (av) showAvatarPreview(av); else if (!e.target.closest('.avatar-preview')) hideAvatarPreview();
+    if (av) showAvatarPreview(av); else hideAvatarPreview();
   });
   document.addEventListener('focusin', e => { const av = e.target.closest('.seat-avatar'); if (av) showAvatarPreview(av); });
-  document.addEventListener('mouseout', e => { if (e.target.closest('.seat-avatar')) hideAvatarPreview(); });
+  document.addEventListener('mouseleave', hideAvatarPreview);
   document.addEventListener('focusout', e => { if (e.target.closest('.seat-avatar')) hideAvatarPreview(); });
 
   const bookBtn = document.getElementById('bookBtn');
