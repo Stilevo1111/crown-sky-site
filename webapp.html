@@ -45,6 +45,9 @@
       background:linear-gradient(180deg,var(--gold),var(--gold2));color:#1b2b45}
     .btn:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(255,201,60,.35)}
     .btn.ghost{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2)}
+    .invite-after{margin-top:14px;padding:12px;border-radius:12px;background:rgba(255,201,60,.12);border:1px solid rgba(255,201,60,.35);text-align:center}
+    .invite-after b{display:block;color:var(--gold);font-size:.9rem;margin-bottom:5px}
+    .invite-after p{margin:0;font-size:.74rem;line-height:1.45;opacity:.9}
     .btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
     .status{margin-top:12px;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.08);
       font-size:.9rem;line-height:1.45;display:none}
@@ -146,6 +149,10 @@
       <label for="nameInput" style="margin-top:16px">Имя на билете</label>
       <input id="nameInput" type="text" maxlength="32" placeholder="Как к тебе обращаться">
       <button class="btn" id="registerBtn">🎟 Занять место</button>
+      <div class="invite-after" id="inviteAfter" style="display:none">
+        <b>🤝 Пригласи друга — забери приз</b>
+        <p>Кто позовёт больше пилотов, заберёт редкие ZXC-мартиры и эксклюзивный обвес для «Гуля» — призы, которых нет в магазине.</p>
+      </div>
       <button class="btn ghost" id="inviteBtn" type="button">🤝 Пригласить друга</button>
       <div class="status" id="status"></div>
     </div>
@@ -351,6 +358,9 @@
         renderSeats();
       }
       userLine.textContent = 'Билет ' + (me.ticket_no || '—') + ' подтверждён ✅';
+      const inviteAfter = document.getElementById('inviteAfter');
+      if (inviteAfter) inviteAfter.style.display = 'block';
+      if (inviteBtn) inviteBtn.textContent = '🤝 Пригласить друга и забрать приз';
       showStatus('Ты уже зарегистрирован — повторно занимать место не нужно.', true);
       tg && tg.HapticFeedback && tg.HapticFeedback.notificationOccurred && tg.HapticFeedback.notificationOccurred('success');
     }

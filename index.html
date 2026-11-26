@@ -320,6 +320,10 @@ section{padding:84px 0}
   background:rgba(255,255,255,.08);color:#fff;font-family:inherit;font-weight:800;font-size:.82rem;cursor:pointer;transition:.2s}
 .btn-copy:hover{background:rgba(255,255,255,.16)}
 .ticket-bot-url{display:block;margin-top:6px;font-size:.65rem;opacity:.6;word-break:break-all;letter-spacing:.2px}
+.ticket-invite{margin-top:16px;padding:14px;border-radius:14px;background:rgba(255,201,60,.12);border:1px solid rgba(255,201,60,.35);text-align:center}
+.ticket-invite b{display:block;color:var(--gold);font-size:.95rem;margin-bottom:6px}
+.ticket-invite p{margin:0 0 10px;font-size:.78rem;line-height:1.45;opacity:.9}
+.ticket-invite .btn-gold{width:100%;padding:10px;font-size:.82rem}
 .ticket-code{margin-top:18px;padding-top:14px;border-top:1px solid rgba(255,255,255,.12);
   font-size:.72rem;letter-spacing:2px;font-weight:800;opacity:.7;display:flex;justify-content:space-between;align-items:center;gap:10px}
 .ticket-code i{flex:1;height:16px;max-width:120px;border-radius:2px;opacity:.8;
@@ -606,6 +610,11 @@ footer{background:var(--deep);color:#bcd9f2;padding:56px 0 30px}
       <a class="btn-bot" id="botLink" href="https://t.me/crown_sky_bot" target="_blank" rel="noopener">🤖 Открыть Telegram-бот</a>
       <button class="btn-copy" id="copyLink" type="button">Скопировать ссылку</button>
       <span class="ticket-bot-url" id="botUrl"></span>
+    </div>
+    <div class="ticket-invite">
+      <b>🤝 Пригласи друга — забери приз</b>
+      <p>Кто позовёт больше пилотов, заберёт редкие ZXC-мартиры и эксклюзивный обвес для «Гуля» — призы, которых нет в магазине.</p>
+      <button class="btn-gold" id="ticketInviteBtn" type="button">📤 Пригласить друга</button>
     </div>
     <div class="ticket-code"><span>CROWN-SKY • <span id="ticketCode">0000</span></span><i></i></div>
   </div>
@@ -983,6 +992,18 @@ document.getElementById('playBtn').addEventListener('click', () => {
       copyBtn.textContent = 'Скопируйте ссылку выше';
     }
     setTimeout(() => { copyBtn.textContent = 'Скопировать ссылку'; }, 2500);
+  });
+
+  const ticketInviteBtn = document.getElementById('ticketInviteBtn');
+  if (ticketInviteBtn) ticketInviteBtn.addEventListener('click', async () => {
+    const url = 'https://t.me/crown_sky_bot?start=register';
+    try {
+      await navigator.clipboard.writeText(url);
+      ticketInviteBtn.textContent = '✅ Ссылка скопирована — отправь другу';
+    } catch (e) {
+      window.prompt('Скопируйте ссылку для друга:', url);
+    }
+    setTimeout(() => { ticketInviteBtn.textContent = '📤 Пригласить друга'; }, 2500);
   });
 
   // Приглашение друга
