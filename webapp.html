@@ -60,9 +60,9 @@
     .news-item span{font-size:.86rem;opacity:.8;line-height:1.45}
     .hint{text-align:center;font-size:.78rem;opacity:.6;margin-top:18px}
     .seat-map{display:grid;gap:4px;justify-content:center;overflow-x:auto;padding:4px 0}
-    .seat-row{display:grid;grid-template-columns:16px repeat(12,30px) 16px;gap:4px;align-items:center;justify-content:center}
+    .seat-row{display:grid;grid-template-columns:16px repeat(12,34px) 16px;gap:4px;align-items:center;justify-content:center}
     .row-label{visibility:hidden;font-size:.6rem;font-weight:800;opacity:0;text-align:center;color:#fff}
-    .seat{width:30px;height:32px;border:0;background:transparent;padding:0;position:relative;cursor:pointer;
+    .seat{width:34px;height:36px;border:0;background:transparent;padding:0;position:relative;cursor:pointer;
       display:flex;align-items:center;justify-content:center;transition:transform .15s}
     .seat svg{position:absolute;inset:0;width:100%;height:100%}
     .seat .chair{fill:#3f55b0;transition:fill .15s}
@@ -73,8 +73,8 @@
     /* Диван с одним пилотом: второе место ещё свободно */
     .seat.partial .chair{fill:#2f6bb5;stroke:var(--gold);stroke-width:2px}
     .seat.selected .chair{fill:var(--gold)}
-    .seat.double{grid-column:span 2;width:64px}
-    .seat-av{position:relative;z-index:2;width:24px;height:24px;border-radius:50%;object-fit:cover;
+    .seat.double{grid-column:span 2;width:76px}
+    .seat-av{position:relative;z-index:2;width:28px;height:28px;border-radius:50%;object-fit:cover;
       border:2px solid rgba(255,255,255,.95);font-size:.72rem;font-weight:800;color:#fff;
       display:flex;align-items:center;justify-content:center;transition:transform .18s ease, box-shadow .18s ease;
       box-shadow:0 2px 6px rgba(0,0,0,.35);cursor:pointer}
@@ -83,7 +83,7 @@
       transform:translateX(-50%);margin-bottom:4px;padding:4px 8px;border-radius:8px;
       background:#0e2a4a;color:#fff;font-size:.65rem;font-weight:800;white-space:nowrap;
       z-index:35;pointer-events:none;box-shadow:0 4px 10px rgba(0,0,0,.25)}
-    .seat.double .seat-av{width:22px;height:22px;position:absolute;top:50%;margin-top:-11px}
+    .seat.double .seat-av{width:30px;height:30px;position:absolute;top:50%;margin-top:-15px}
     .seat.double .av-l{left:6px}.seat.double .av-r{right:6px}
     .legend{display:flex;gap:14px;justify-content:center;margin-top:10px;font-size:.72rem;opacity:.8}
     .hall-title{display:none;text-align:center;color:var(--gold);font-weight:800;font-size:.95rem;margin:14px 0 8px}
@@ -91,6 +91,9 @@
     .legend .taken{background:#262626}.legend .sel{background:var(--gold)}
     .top-block-app{margin:0 0 14px;padding:0;background:none;border:0;border-radius:0;box-shadow:none}
     .top-block-app h2{margin:0 0 8px;font-size:1.05rem;color:var(--gold)}
+    .shots-app{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+    .shots-app img{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:10px;display:block;
+      border:1px solid rgba(255,255,255,.12);background:#0e2a4a}
     .top-podium{display:flex;gap:8px;overflow-x:auto;padding:14px 0 6px;scrollbar-width:thin}
     .top-item{position:relative;width:62px;flex:none;text-align:center}
     .top-circle{width:58px;height:58px;margin:0 auto;border-radius:50%;border:3px solid rgba(255,255,255,.92);
@@ -109,14 +112,17 @@
       font-family:'Fredoka',sans-serif;font-size:2.8rem;font-weight:800}
     .avatar-preview.show{display:block}
     .avatar-preview.initial.show{display:flex}
+    .avatar-preview-name{position:fixed;display:none;z-index:10000;color:#fff;font-size:.82rem;font-weight:800;
+      text-align:center;text-shadow:0 2px 6px rgba(0,0,0,.7);pointer-events:none;line-height:1.2}
+    .avatar-preview-name.show{display:block}
     @media (max-width:420px){
-      .seat-row{grid-template-columns:repeat(12,22px);gap:3px}
+      .seat-row{grid-template-columns:repeat(12,26px);gap:3px}
       .row-label{display:none}
-      .seat{width:22px;height:23px}
-      .seat.double{width:47px}
-      .seat-av{width:16px;height:16px;font-size:.55rem;border-width:1.5px}
-      .seat.double .seat-av{width:14px;height:14px;margin-top:-7px;top:50%}
-      .seat.double .av-l{left:4px}.seat.double .av-r{right:4px}
+      .seat{width:26px;height:27px}
+      .seat.double{width:58px}
+      .seat-av{width:22px;height:22px;font-size:.6rem;border-width:1.5px}
+      .seat.double .seat-av{width:20px;height:20px;margin-top:-10px;top:50%}
+      .seat.double .av-l{left:3px}.seat.double .av-r{right:3px}
       .seat-av:hover,.seat-av:focus-visible{z-index:30}
     }
   </style>
@@ -155,6 +161,16 @@
       </div>
       <button class="btn ghost" id="inviteBtn" type="button">🤝 Пригласить друга</button>
       <div class="status" id="status"></div>
+    </div>
+
+    <div class="card">
+      <h2>📸 Скриншоты игры</h2>
+      <div class="shots-app">
+        <img src="/assets/screen-1.png" alt="Crown Sky — мир парящих островов" loading="lazy">
+        <img src="/assets/screen-menu.png" alt="Магазин и снаряжение в Мидгейте" loading="lazy">
+        <img src="/assets/screen-2.png" alt="Бой в небе" loading="lazy">
+        <img src="/assets/ship-new.png" alt="Небесная рыбалка в полёте" loading="lazy">
+      </div>
     </div>
 
     <div class="card">
@@ -210,6 +226,9 @@
     const avatarPreview = document.createElement('div');
     avatarPreview.className = 'avatar-preview';
     document.body.appendChild(avatarPreview);
+    const avatarPreviewName = document.createElement('div');
+    avatarPreviewName.className = 'avatar-preview-name';
+    document.body.appendChild(avatarPreviewName);
     function showAvatarPreview(av) {
       const isImg = av.tagName === 'IMG';
       avatarPreview.className = 'avatar-preview' + (isImg ? '' : ' initial') + ' show';
@@ -226,8 +245,24 @@
       avatarPreview.style.top = top + 'px';
       avatarPreview.style.width = size + 'px';
       avatarPreview.style.height = size + 'px';
+
+      const btn = av.closest('.seat');
+      const names = String(btn?.dataset.name || '').split(' + ').map(s => s.trim()).filter(Boolean);
+      const label = av.classList.contains('av-l') ? (names[0] || '')
+        : av.classList.contains('av-r') ? (names[1] || names[0] || '')
+        : (names[0] || '');
+      avatarPreviewName.textContent = label;
+      avatarPreviewName.className = 'avatar-preview-name' + (label ? ' show' : '');
+      avatarPreviewName.style.left = left + 'px';
+      avatarPreviewName.style.top = (top + size + 6) + 'px';
+      avatarPreviewName.style.width = size + 'px';
     }
-    function hideAvatarPreview() { avatarPreview.className = 'avatar-preview'; avatarPreview.style.backgroundImage = ''; }
+    function hideAvatarPreview() {
+      avatarPreview.className = 'avatar-preview';
+      avatarPreview.style.backgroundImage = '';
+      avatarPreviewName.className = 'avatar-preview-name';
+      avatarPreviewName.textContent = '';
+    }
     document.addEventListener('mouseover', e => {
       const av = e.target.closest('.seat-av');
       if (av) showAvatarPreview(av); else hideAvatarPreview();

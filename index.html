@@ -260,6 +260,9 @@ section{padding:84px 0}
   font-family:'Fredoka',sans-serif;font-size:2.8rem;font-weight:800}
 .avatar-preview.show{display:block}
 .avatar-preview.initial.show{display:flex}
+.avatar-preview-name{position:fixed;display:none;z-index:10000;color:#fff;font-size:.82rem;font-weight:800;
+  text-align:center;text-shadow:0 2px 6px rgba(0,0,0,.7);pointer-events:none;line-height:1.2}
+.avatar-preview-name.show{display:block}
 .hall-legend{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:14px;font-size:.76rem;font-weight:800;color:#eaf8ff}
 .hall-legend i{display:inline-block;width:19px;height:21px;margin-right:6px;vertical-align:-6px}
 .hall-legend i svg{width:100%;height:100%;display:block}
@@ -764,6 +767,9 @@ document.getElementById('playBtn').addEventListener('click', () => {
   const avatarPreview = document.createElement('div');
   avatarPreview.className = 'avatar-preview';
   document.body.appendChild(avatarPreview);
+  const avatarPreviewName = document.createElement('div');
+  avatarPreviewName.className = 'avatar-preview-name';
+  document.body.appendChild(avatarPreviewName);
   function showAvatarPreview(av) {
     const isImg = av.tagName === 'IMG';
     avatarPreview.className = 'avatar-preview' + (isImg ? '' : ' initial') + ' show';
@@ -780,8 +786,24 @@ document.getElementById('playBtn').addEventListener('click', () => {
     avatarPreview.style.top = top + 'px';
     avatarPreview.style.width = size + 'px';
     avatarPreview.style.height = size + 'px';
+
+    const btn = av.closest('.seat');
+    const names = String(btn?.dataset.name || '').split(' + ').map(s => s.trim()).filter(Boolean);
+    const label = av.classList.contains('av-left') ? (names[0] || '')
+      : av.classList.contains('av-right') ? (names[1] || names[0] || '')
+      : (names[0] || '');
+    avatarPreviewName.textContent = label;
+    avatarPreviewName.className = 'avatar-preview-name' + (label ? ' show' : '');
+    avatarPreviewName.style.left = left + 'px';
+    avatarPreviewName.style.top = (top + size + 6) + 'px';
+    avatarPreviewName.style.width = size + 'px';
   }
-  function hideAvatarPreview() { avatarPreview.className = 'avatar-preview'; avatarPreview.style.backgroundImage = ''; }
+  function hideAvatarPreview() {
+    avatarPreview.className = 'avatar-preview';
+    avatarPreview.style.backgroundImage = '';
+    avatarPreviewName.className = 'avatar-preview-name';
+    avatarPreviewName.textContent = '';
+  }
   document.addEventListener('mouseover', e => {
     const av = e.target.closest('.seat-avatar');
     if (av) showAvatarPreview(av); else hideAvatarPreview();
