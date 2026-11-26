@@ -102,7 +102,7 @@
       <div class="legend"><span><i></i>Свободно</span><span><i class="taken"></i>Занято</span><span><i class="sel"></i>Твоё место</span></div>
     </div>
 
-    <div class="card">
+    <div class="card" id="ticketCard">
       <h2>🎟 Твой билет</h2>
       <div class="seat-line" id="seatLabel">Место не выбрано</div>
       <div class="muted" id="userLine">Подключение к Telegram…</div>
@@ -232,6 +232,10 @@
         renderSeats();
         updateSeatLabel();
         tg && tg.HapticFeedback && tg.HapticFeedback.selectionChanged && tg.HapticFeedback.selectionChanged();
+        // Сразу перематываем к регистрации билета, чтобы не листать вручную
+        const card = document.getElementById('ticketCard');
+        if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setTimeout(() => { try { nameInput.focus({ preventScroll: true }); } catch (e) {} }, 350);
       });
       return b;
     }

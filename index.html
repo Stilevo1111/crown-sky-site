@@ -846,6 +846,11 @@ document.getElementById('playBtn').addEventListener('click', () => {
     seatMap.querySelectorAll('.seat.selected').forEach(s => s.classList.remove('selected'));
     if (selected !== null) seatMap.querySelector('.seat[data-id="' + selected + '"]').classList.add('selected');
     updateChosen();
+    // На мобильном панель билета ниже зала — перематываем к ней сразу после выбора места
+    if (selected !== null && window.innerWidth <= 860) {
+      const panel = document.querySelector('.ticket-panel');
+      if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   });
 
   function openTicket() {
