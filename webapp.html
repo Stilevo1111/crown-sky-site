@@ -111,8 +111,7 @@
       <div class="muted" id="userLine">Подключение к Telegram…</div>
       <label for="nameInput" style="margin-top:16px">Имя на билете</label>
       <input id="nameInput" type="text" maxlength="32" placeholder="Как к тебе обращаться">
-      <button class="btn" id="registerBtn">Продолжить регистрацию</button>
-      <button class="btn ghost" id="confirmBtn">Подтвердить регистрацию</button>
+      <button class="btn" id="registerBtn">🎟 Занять место</button>
       <button class="btn ghost" id="inviteBtn" type="button">🤝 Пригласить друга</button>
       <div class="status" id="status"></div>
     </div>
@@ -151,7 +150,6 @@
     const nameInput = document.getElementById('nameInput');
     const statusEl = document.getElementById('status');
     const registerBtn = document.getElementById('registerBtn');
-    const confirmBtn = document.getElementById('confirmBtn');
     const appSeatMap = document.getElementById('appSeatMap');
 
     const CHAIR_PATH = 'M13.77,23.14V48H51.24V23.14a7.83,7.83,0,0,1,7.82-7.83V10.25a9.7,9.7,0,0,0-9.7-9.7H15.64a9.7,9.7,0,0,0-9.7,9.7v5.06a7.84,7.84,0,0,1,7.83,7.83Zm-13.16,0V55.87A5.33,5.33,0,0,0,5.94,61.2H59.06a5.33,5.33,0,0,0,5.33-5.33V23.14a5.32,5.32,0,1,0-10.65,0v27.4H11.27V23.14a5.33,5.33,0,1,0-10.66,0Z';
@@ -267,7 +265,6 @@
       document.getElementById('demoHint').style.display = 'block';
       userLine.textContent = 'Откройте это приложение из Telegram-бота.';
       registerBtn.disabled = true;
-      confirmBtn.disabled = true;
     }
 
     function showStatus(text, ok) {
@@ -278,6 +275,7 @@
     registerBtn.addEventListener('click', async () => {
       registerBtn.disabled = true;
       try {
+        // 1. Сохраняем имя и выбранное место
         const res = await fetch(API + '/api/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -288,33 +286,22 @@
           throw new Error(data.error === 'seat_taken' ? 'Это место уже занято — выбери другое'
             : (data.error || 'Ошибка регистрации'));
         }
-        showStatus(data.status === 'confirmed'
-          ? '✅ Регистрация уже подтверждена. Жди приглашения в бета-тест!'
-          : '✅ Данные сохранены. Теперь нажми «Подтвердить регистрацию» в боте.', true);
+        // 2. Сразу подтверждаем билет
+        const confirmRes = await fetch(API + '/api/confirm', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ initData })
+        });
+        const confirmData = await confirmRes.json();
+        if (!confirmRes.ok || !confirmData.ok) {
+          throw new Error(confirmData.error || 'Не удалось подтвердить билет');
+        }
+        showStatus('🎉 Место занято! Билет ' + (confirmData.ticket_no || '') + ' подтверждён. Корабль «Гуль» ждёт первых пилотов.', true);
         tg && tg.HapticFeedback && tg.HapticFeedback.notificationOccurred('success');
       } catch (err) {
         showStatus('⚠️ ' + err.message, false);
       } finally {
         registerBtn.disabled = false;
-      }
-    });
-
-    confirmBtn.addEventListener('click', async () => {
-      confirmBtn.disabled = true;
-      try {
-        const res = await fetch(API + '/api/confirm', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ initData })
-        });
-        const data = await res.json();
-        if (!res.ok || !data.ok) throw new Error(data.error || 'Сначала выбери место');
-        showStatus('🎉 Регистрация подтверждена! Корабль «Гуль» ждёт первых пилотов.', true);
-        tg && tg.HapticFeedback && tg.HapticFeedback.notificationOccurred('success');
-      } catch (err) {
-        showStatus('⚠️ ' + err.message, false);
-      } finally {
-        confirmBtn.disabled = false;
       }
     });
 
