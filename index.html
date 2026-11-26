@@ -1008,7 +1008,7 @@ document.getElementById('playBtn').addEventListener('click', () => {
     try {
       const res = await fetch(API_BASE + '/api/reviews');
       const data = await res.json();
-      if (data.ok) {
+      if (data.ok && Array.isArray(data.items)) {
         chat.innerHTML = '';
         if (!data.items.length) emptyNote();
         data.items.slice().reverse().forEach(item => addMessage({
@@ -1037,6 +1037,8 @@ document.getElementById('playBtn').addEventListener('click', () => {
         });
         if (res.ok) {
           const data = await res.json();
+          const empty = chat.querySelector('.muted');
+          if (empty && empty.textContent.includes('Пока нет записок')) empty.remove();
           addMessage({ text: text, time: fmtTime(data.item?.created_at), mine: true });
           chat.scrollTop = chat.scrollHeight;
           input.focus();
@@ -1047,6 +1049,8 @@ document.getElementById('playBtn').addEventListener('click', () => {
 
     let notes = [];
     try { const raw = JSON.parse(localStorage.getItem(KEY) || '[]'); notes = Array.isArray(raw) ? raw : []; } catch (err) {}
+    const empty = chat.querySelector('.muted');
+    if (empty && empty.textContent.includes('Пока нет записок')) empty.remove();
     notes.push({ text: text, time: fmtTime() });
     try { localStorage.setItem(KEY, JSON.stringify(notes.slice(-40))); } catch (err) {}
     addMessage({ text: text, time: notes[notes.length - 1].time, mine: true });

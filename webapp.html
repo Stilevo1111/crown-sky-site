@@ -227,7 +227,6 @@
       b.type = 'button';
       b.className = 'seat' + (double ? ' double' : '') + (subs.length ? ' taken' : '') + (selectedSeat === id ? ' selected' : '');
       b.dataset.id = id;
-      if (subs.length) b.dataset.name = subs.map(s => s.name || s.first_name || 'Пилот').join(' + ');
       b.disabled = full;
       const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
       svg.setAttribute('viewBox', double ? '0 0 119.78 60.64' : '0 0 63.78 60.65');
