@@ -664,7 +664,7 @@ document.getElementById('playBtn').addEventListener('click', () => {
     fetch(SUBSCRIBERS_URL)
       .then(r => r.json())
       .then(data => {
-        subscribers = Array.isArray(data) ? data : (data.subscribers || []);
+        subscribers = Array.isArray(data) ? data : (data.items || data.subscribers || []);
         render();
       })
       .catch(() => {});
