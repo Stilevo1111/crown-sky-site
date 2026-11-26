@@ -74,6 +74,15 @@
     .hall-title{text-align:center;color:var(--gold);font-weight:800;font-size:.95rem;margin:14px 0 8px}
     .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;background:#3f55b0;margin-right:4px}
     .legend .taken{background:#262626}.legend .sel{background:var(--gold)}
+    @media (max-width:420px){
+      .seat-row{grid-template-columns:repeat(12,22px);gap:3px}
+      .row-label{display:none}
+      .seat{width:22px;height:23px}
+      .seat.double{width:47px}
+      .seat-av{width:12px;height:12px;font-size:.45rem}
+      .seat.double .seat-av{width:11px;height:11px;top:1px}
+      .seat.double .av-l{left:5px}.seat.double .av-r{right:5px}
+    }
   </style>
 </head>
 <body>
