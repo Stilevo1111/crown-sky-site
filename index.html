@@ -189,6 +189,15 @@ section{padding:84px 0}
 .tg-gate button{width:100%;border:0;border-radius:18px;padding:9px 12px;font-weight:800;cursor:pointer;background:linear-gradient(180deg,#ffc93c,#ff9d2e);color:#0e2a4a}
 .tg-gate a{display:inline-block;margin-top:8px;color:var(--gold);font-weight:800;text-decoration:none;font-size:.76rem}
 .tg-gate .gate-msg{color:#ffd88a;font-weight:700;min-height:1em;margin:6px 0 0}
+.top-block{margin-top:20px;padding:16px;border-radius:18px;background:rgba(10,36,66,.55);color:#eaf8ff}
+.top-block h3{margin:0 0 6px;font-family:'Fredoka',sans-serif;font-size:1rem;color:var(--gold)}
+.top-prize{font-size:.74rem;opacity:.8;margin:0 0 10px;line-height:1.4}
+.top-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.08);font-size:.8rem}
+.top-row:last-child{border-bottom:0}
+.top-rank{width:22px;text-align:center;font-weight:800;color:var(--gold);flex:none}
+.top-av{width:24px;height:24px;border-radius:50%;object-fit:cover;background:#164a7a;flex:none}
+.top-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.top-count{font-weight:800;color:var(--gold);white-space:nowrap}
 .reviews-note{max-width:420px;text-align:center;margin:18px auto 0;font-size:.82rem;color:#5b7894;font-weight:700;line-height:1.5}
 .chat-inline{margin-top:20px;width:100%}
 .chat-inline-title{text-align:center;color:#fff;font-family:'Fredoka',sans-serif;font-size:1.15rem;
@@ -462,6 +471,11 @@ footer{background:var(--deep);color:#bcd9f2;padding:56px 0 30px}
                 </div>
               </div>
             </div>
+          </div>
+          <div class="top-block" id="topBlock">
+            <h3>🏆 Топ пригласивших</h3>
+            <p class="top-prize">Топ-10 получат эксклюзивные призы в игре — детали объявим отдельно.</p>
+            <div class="top-list" id="topList"><div class="muted" style="text-align:center">Загружаем…</div></div>
           </div>
         </aside>
       </div>
@@ -977,10 +991,10 @@ document.getElementById('playBtn').addEventListener('click', () => {
       try { localStorage.setItem('crownsky_invite_ref', ref); } catch (e) {}
     }
     inviteSiteBtn.addEventListener('click', async () => {
-      const url = location.origin + '/?ref=' + encodeURIComponent(ref);
+      const url = 'https://t.me/crown_sky_bot?start=register';
       try {
         await navigator.clipboard.writeText(url);
-        inviteSiteBtn.textContent = '✅ Ссылка скопирована';
+        inviteSiteBtn.textContent = '✅ Ссылка на бота скопирована';
       } catch (e) {
         window.prompt('Скопируйте ссылку для друга:', url);
       }
@@ -1176,6 +1190,51 @@ document.getElementById('playBtn').addEventListener('click', () => {
       }
     } catch (err) {}
   });
+})();
+
+// Топ-10 по приглашениям
+(() => {
+  const box = document.getElementById('topList');
+  if (!box) return;
+  (async () => {
+    try {
+      const res = await fetch('https://bot-2bdu.onrender.com/api/top?limit=10');
+      const data = await res.json();
+      if (!res.ok || !data.ok || !Array.isArray(data.items)) throw new Error('top unavailable');
+      box.innerHTML = '';
+      if (!data.items.length) {
+        box.innerHTML = '<div class="muted" style="text-align:center">Топ пока пуст — пригласи друзей первым.</div>';
+        return;
+      }
+      const medals = ['🥇', '🥈', '🥉'];
+      data.items.forEach((p, i) => {
+        const row = document.createElement('div');
+        row.className = 'top-row';
+        const rank = document.createElement('span');
+        rank.className = 'top-rank';
+        rank.textContent = medals[i] || String(i + 1);
+        row.appendChild(rank);
+        if (p.photo_url) {
+          const img = document.createElement('img');
+          img.className = 'top-av';
+          img.src = p.photo_url;
+          img.alt = '';
+          row.appendChild(img);
+        }
+        const name = document.createElement('span');
+        name.className = 'top-name';
+        name.textContent = p.name || 'Пилот';
+        row.appendChild(name);
+        const count = document.createElement('span');
+        count.className = 'top-count';
+        count.textContent = String(p.invited) + ' 👥';
+        row.appendChild(count);
+        box.appendChild(row);
+      });
+    } catch (err) {
+      box.innerHTML = '<div class="muted" style="text-align:center">Не удалось загрузить топ.</div>';
+    }
+  })();
 })();
 
 // Год в футере
