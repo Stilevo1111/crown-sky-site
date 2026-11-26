@@ -183,6 +183,9 @@ section{padding:84px 0}
 .chat-inline-title{text-align:center;color:#fff;font-family:'Fredoka',sans-serif;font-size:1.15rem;
   margin-bottom:12px;text-shadow:0 2px 8px rgba(10,28,51,.35)}
 .chat-inline .reviews-note{color:rgba(255,255,255,.85);text-shadow:0 2px 6px rgba(10,28,51,.25)}
+.invite-btn{width:100%;margin-top:12px;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.35);
+  background:rgba(255,255,255,.12);color:#fff;font:inherit;font-weight:800;cursor:pointer;transition:.2s}
+.invite-btn:hover{background:rgba(255,255,255,.2)}
 @media (max-width:520px){
   .phone{width:100%;height:520px}
 }
@@ -424,6 +427,8 @@ footer{background:var(--deep);color:#bcd9f2;padding:56px 0 30px}
               </div>
             </div>
           </div>
+
+          <button class="invite-btn" id="inviteSiteBtn" type="button">🤝 Пригласить друга</button>
         </aside>
       </div>
     </div>
@@ -903,6 +908,35 @@ document.getElementById('playBtn').addEventListener('click', () => {
     }
     setTimeout(() => { copyBtn.textContent = 'Скопировать ссылку'; }, 2500);
   });
+
+  // Приглашение друга
+  const inviteSiteBtn = document.getElementById('inviteSiteBtn');
+  if (inviteSiteBtn) {
+    let ref = '';
+    try { ref = localStorage.getItem('crownsky_invite_ref') || ''; } catch (e) {}
+    if (!ref) {
+      ref = Math.random().toString(36).slice(2, 10);
+      try { localStorage.setItem('crownsky_invite_ref', ref); } catch (e) {}
+    }
+    inviteSiteBtn.addEventListener('click', async () => {
+      const url = location.origin + '/?ref=' + encodeURIComponent(ref);
+      try {
+        await navigator.clipboard.writeText(url);
+        inviteSiteBtn.textContent = '✅ Ссылка скопирована';
+      } catch (e) {
+        window.prompt('Скопируйте ссылку для друга:', url);
+      }
+      setTimeout(() => { inviteSiteBtn.textContent = '🤝 Пригласить друга'; }, 2500);
+    });
+  }
+  const invitedRef = new URLSearchParams(location.search).get('ref');
+  if (invitedRef) {
+    try { localStorage.setItem('crownsky_invited_by', invitedRef); } catch (e) {}
+    const note = document.createElement('p');
+    note.className = 'chosen-seat';
+    note.textContent = '🤝 Вас пригласил пилот ' + invitedRef;
+    document.querySelector('.ticket-panel')?.prepend(note);
+  }
 
   document.getElementById('ticketClose').addEventListener('click', closeTicket);
   overlay.addEventListener('click', e => { if (e.target === overlay) closeTicket(); });

@@ -110,6 +110,7 @@
       <input id="nameInput" type="text" maxlength="32" placeholder="Как к тебе обращаться">
       <button class="btn" id="registerBtn">Продолжить регистрацию</button>
       <button class="btn ghost" id="confirmBtn">Подтвердить регистрацию</button>
+      <button class="btn ghost" id="inviteBtn" type="button">🤝 Пригласить друга</button>
       <div class="status" id="status"></div>
     </div>
 
@@ -313,6 +314,27 @@
         confirmBtn.disabled = false;
       }
     });
+
+    const inviteBtn = document.getElementById('inviteBtn');
+    if (inviteBtn) inviteBtn.addEventListener('click', async () => {
+      const ref = user?.id || 'friend';
+      const url = location.origin + '/webapp.html?ref=' + encodeURIComponent(ref);
+      try {
+        await navigator.clipboard.writeText(url);
+        showStatus('✅ Ссылка-приглашение скопирована — отправьте её другу', true);
+        tg && tg.showAlert && tg.showAlert('Ссылка скопирована!');
+      } catch (e) {
+        showStatus('Ссылка: ' + url, true);
+      }
+    });
+
+    const invitedBy = params.get('ref');
+    if (invitedBy) {
+      const note = document.createElement('div');
+      note.className = 'muted';
+      note.textContent = '🤝 Вас пригласил пилот ' + invitedBy;
+      document.getElementById('ticketCard')?.prepend(note);
+    }
 
     async function loadNews() {
       const box = document.getElementById('newsList');
