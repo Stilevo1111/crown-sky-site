@@ -13,6 +13,18 @@
     body{margin:0;min-height:100vh;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
       color:#fff;background:radial-gradient(circle at 80% -10%,#1d5b95 0,transparent 45%),linear-gradient(180deg,#123c6b,#0e2a4a 70%)}
     .wrap{max-width:560px;margin:0 auto;padding:22px 18px 40px}
+    .hero-mini{margin:-22px -18px 18px;padding:16px 18px 22px;text-align:center;
+      background:linear-gradient(180deg,#2a9df4,#16508c);border-radius:0 0 24px 24px;
+      box-shadow:0 10px 24px rgba(0,0,0,.18)}
+    .mini-crown{display:block;width:54px;height:54px;margin:0 auto 6px;filter:drop-shadow(0 4px 10px rgba(0,0,0,.3))}
+    .mini-title{margin:0;color:#fff;font-size:2rem;font-weight:800;letter-spacing:.5px;text-shadow:0 3px 8px rgba(0,0,0,.3)}
+    .mini-title em{color:var(--gold);font-style:normal}
+    .mini-badge{display:inline-block;margin:10px 0 4px;padding:6px 14px;border-radius:999px;
+      background:linear-gradient(180deg,var(--gold),var(--gold2));color:#1b2b45;font-weight:800;font-size:.75rem;
+      box-shadow:0 6px 14px rgba(255,201,60,.3)}
+    .mini-lead{max-width:460px;margin:8px auto 14px;font-size:.86rem;line-height:1.5;opacity:.95}
+    .mini-count b{display:block;font-size:2.4rem;line-height:1;color:var(--gold);text-shadow:0 2px 0 rgba(10,28,51,.3),0 0 18px rgba(255,201,60,.45)}
+    .mini-count span{display:block;margin-top:4px;font-size:.72rem;font-weight:800;letter-spacing:.5px}
     .top{display:flex;align-items:center;gap:12px;margin-bottom:22px}
     .crown{width:46px;height:46px;flex:none;filter:drop-shadow(0 4px 10px rgba(0,0,0,.3))}
     .brand{font-weight:800;font-size:1.35rem;letter-spacing:.5px}
@@ -66,9 +78,12 @@
 </head>
 <body>
   <div class="wrap">
-    <div class="top">
-      <svg class="crown" viewBox="0 0 64 64"><path d="M8 44 L4 16 L20 28 L32 8 L44 28 L60 16 L56 44 Z" fill="#ffc93c" stroke="#0e2a4a" stroke-width="3" stroke-linejoin="round"/><rect x="8" y="46" width="48" height="8" rx="3" fill="#ff9d2e" stroke="#0e2a4a" stroke-width="3"/></svg>
-      <div class="brand">CROWN <span>SKY</span><small>Записки пилотов</small></div>
+    <div class="hero-mini">
+      <svg class="mini-crown" viewBox="0 0 64 64"><path d="M8 44 L4 16 L20 28 L32 8 L44 28 L60 16 L56 44 Z" fill="#ffc93c" stroke="#0e2a4a" stroke-width="3" stroke-linejoin="round"/><rect x="8" y="46" width="48" height="8" rx="3" fill="#ff9d2e" stroke="#0e2a4a" stroke-width="3"/><circle cx="32" cy="34" r="4" fill="#2a9df4" stroke="#0e2a4a" stroke-width="2"/></svg>
+      <h1 class="mini-title">CROWN <em>SKY</em></h1>
+      <span class="mini-badge">🧪 Открыт набор в бета-тест!</span>
+      <p class="mini-lead">Мир парящих островов, воздушных кораблей и небесных приключений. Выбери место, забери билет и подпишись на бота — мы позовём тебя в бета-тест одним из первых.</p>
+      <div class="mini-count"><b id="heroWaitMini">84</b><span>ЧЕЛОВЕКА ЖДУТ ИГРУ</span></div>
     </div>
 
     <div class="card">
@@ -81,7 +96,6 @@
     <div class="card">
       <h2>🎟 Твой билет</h2>
       <div class="seat-line" id="seatLabel">Место не выбрано</div>
-      <div class="muted" id="pilotCount">👥 Считаем пилотов…</div>
       <div class="muted" id="userLine">Подключение к Telegram…</div>
       <label for="nameInput" style="margin-top:16px">Имя на билете</label>
       <input id="nameInput" type="text" maxlength="32" placeholder="Как к тебе обращаться">
@@ -306,11 +320,11 @@
     }
 
     async function loadStats() {
-      const box = document.getElementById('pilotCount');
+      const box = document.getElementById('heroWaitMini');
       try {
         const res = await fetch(API + '/api/stats');
         const data = await res.json();
-        if (data.ok) box.textContent = '👥 Уже ' + data.waiting + ' пилотов в списке';
+        if (data.ok && box) box.textContent = data.waiting;
       } catch (e) {}
     }
     loadNews();
