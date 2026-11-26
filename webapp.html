@@ -158,6 +158,7 @@
     let currentStartParam = startParam;
     let subscribers = [];
     let loadedHalls = 1;
+    let isRegistered = false;
 
     const seatLabelEl = document.getElementById('seatLabel');
     const userLine = document.getElementById('userLine');
@@ -274,7 +275,7 @@
       svg.innerHTML = '<path class="chair" d="' + (double ? SOFA_PATH : CHAIR_PATH) + '"/>';
       b.appendChild(svg);
       b.addEventListener('click', () => {
-        if (full) return;
+        if (isRegistered || full) return;
         selectedSeat = id;
         currentStartParam = 'seat_' + id;
         renderSeats();
@@ -297,6 +298,7 @@
     }
     updateSeatLabel();
     loadSubscribers();
+    loadMe();
 
     const moreBtn = document.getElementById('moreHallsBtn');
     if (moreBtn) moreBtn.addEventListener('click', () => {
@@ -318,6 +320,36 @@
       statusEl.className = 'status show ' + (ok ? 'ok' : 'err');
     }
 
+    // Если пилот уже подтверждён — больше не показываем регистрацию
+    function markRegistered(me) {
+      isRegistered = true;
+      registerBtn.style.display = 'none';
+      nameInput.style.display = 'none';
+      if (nameInput.previousElementSibling) nameInput.previousElementSibling.style.display = 'none';
+      if (me.seat_id != null) {
+        selectedSeat = Number(me.seat_id);
+        currentStartParam = '';
+        updateSeatLabel();
+        renderSeats();
+      }
+      userLine.textContent = 'Билет ' + (me.ticket_no || '—') + ' подтверждён ✅';
+      showStatus('Ты уже зарегистрирован — повторно занимать место не нужно.', true);
+      tg && tg.HapticFeedback && tg.HapticFeedback.notificationOccurred && tg.HapticFeedback.notificationOccurred('success');
+    }
+
+    async function loadMe() {
+      if (!initData) return;
+      try {
+        const res = await fetch(API + '/api/me', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ initData })
+        });
+        const data = await res.json();
+        if (data.ok && data.status === 'confirmed') markRegistered(data);
+      } catch (e) {}
+    }
+
     registerBtn.addEventListener('click', async () => {
       registerBtn.disabled = true;
       try {
@@ -330,6 +362,7 @@
         const data = await res.json();
         if (!res.ok || !data.ok) {
           throw new Error(data.error === 'seat_taken' ? 'Это место уже занято — выбери другое'
+            : data.error === 'already_registered' ? 'Ты уже зарегистрирован — повторно занимать место не нужно'
             : (data.error || 'Ошибка регистрации'));
         }
         // 2. Сразу подтверждаем билет
@@ -342,7 +375,7 @@
         if (!confirmRes.ok || !confirmData.ok) {
           throw new Error(confirmData.error || 'Не удалось подтвердить билет');
         }
-        showStatus('🎉 Место занято! Билет ' + (confirmData.ticket_no || '') + ' подтверждён. Корабль «Гуль» ждёт первых пилотов.', true);
+        markRegistered({ seat_id: confirmData.seat_id, ticket_no: confirmData.ticket_no });
         // Сразу обновляем карту: новое место и аватарка появляются без перезагрузки
         await loadSubscribers();
         loadStats();
