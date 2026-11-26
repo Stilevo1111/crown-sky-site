@@ -249,6 +249,7 @@ section{padding:84px 0}
 .seat.double .seat-avatar{position:absolute;top:50%;margin-top:-15px;width:30px;height:30px}
 .seat.double .av-left{left:10px}
 .seat.double .av-right{right:10px}
+.seat.double .av-center{left:50%;margin-left:-15px}
 .seat-avatar:hover,.seat-avatar:focus-visible{z-index:30;box-shadow:0 6px 18px rgba(0,0,0,.4)}
 .seat[data-name]:hover::after{content:attr(data-name);position:absolute;bottom:100%;left:50%;
   transform:translateX(-50%);margin-bottom:4px;padding:4px 8px;border-radius:8px;
@@ -347,6 +348,7 @@ section{padding:84px 0}
   .seat.double .seat-avatar{width:20px;height:20px;margin-top:-10px}
   .seat.double .av-left{left:6px}
   .seat.double .av-right{right:6px}
+  .seat.double .av-center{margin-left:-10px}
   .seat-avatar.initial{font-size:.6rem}
   .seat-avatar:hover,.seat-avatar:focus-visible{z-index:30}
   .hall-legend{gap:12px;font-size:.7rem}
@@ -870,7 +872,7 @@ document.getElementById('playBtn').addEventListener('click', () => {
     if (occupied) {
       const slots = double ? Math.min(subs.length, 2) : 1;
       for (let s = 1; s <= slots; s++) {
-        appendAvatar(b, avatarFor(id, s), double ? (s === 1 ? 'av-left' : 'av-right') : '');
+        appendAvatar(b, avatarFor(id, s), double ? (slots === 1 ? 'av-center' : (s === 1 ? 'av-left' : 'av-right')) : '');
       }
     }
     return b;
