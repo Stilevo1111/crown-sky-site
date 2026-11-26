@@ -116,10 +116,10 @@
       text-align:center;text-shadow:0 2px 6px rgba(0,0,0,.7);pointer-events:none;line-height:1.2}
     .avatar-preview-name.show{display:block}
     @media (max-width:420px){
-      .seat-row{grid-template-columns:repeat(12,26px);gap:3px}
+      .seat-row{grid-template-columns:repeat(12,25px);gap:3px}
       .row-label{display:none}
-      .seat{width:26px;height:27px}
-      .seat.double{width:58px}
+      .seat{width:25px;height:27px}
+      .seat.double{width:55px}
       .seat-av{width:22px;height:22px;font-size:.6rem;border-width:1.5px}
       .seat.double .seat-av{width:20px;height:20px;margin-top:-10px;top:50%}
       .seat.double .av-l{left:3px}.seat.double .av-r{right:3px}
@@ -274,9 +274,18 @@
     function avatarEl(sub) {
       const el = document.createElement(sub?.photo_url ? 'img' : 'span');
       el.className = 'seat-av';
-      if (sub?.photo_url) { el.src = sub.photo_url; el.alt = ''; }
+      const initial = String(sub?.name || sub?.first_name || 'П').trim()[0].toUpperCase();
+      if (sub?.photo_url) {
+        el.alt = '';
+        el.onerror = () => {
+          el.onerror = null;
+          const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#2a9df4"/><stop offset="1" stop-color="#164a7a"/></linearGradient></defs><rect width="64" height="64" fill="url(#g)"/><text x="32" y="43" text-anchor="middle" font-family="Arial" font-size="30" font-weight="700" fill="#fff">${initial}</text></svg>`;
+          el.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+        };
+        el.src = sub.photo_url;
+      }
       else {
-        el.textContent = String(sub?.name || sub?.first_name || 'П').trim()[0].toUpperCase();
+        el.textContent = initial;
         el.style.background = 'linear-gradient(135deg,#2a9df4,#164a7a)';
       }
       return el;
