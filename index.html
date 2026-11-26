@@ -647,6 +647,10 @@ document.getElementById('playBtn').addEventListener('click', () => {
   const NAMES = ['Аня','Макс','Лиза','Илья','Соня','Артём','Ника','Даня','Полина','Кирилл','Вера','Тимур'];
   const seatMap = document.getElementById('seatMap');
   if (!seatMap) return;
+  // Одноразовая очистка старых локальных броней: открыть сайт с ?reset=1
+  if (new URLSearchParams(location.search).has('reset')) {
+    try { localStorage.removeItem(STORAGE_KEY); localStorage.removeItem('crownsky_cinema_v1'); } catch (e) {}
+  }
 
   // Занятые места — только реальные подтверждённые подписчики и ваши локальные брони
   const taken = new Set();
