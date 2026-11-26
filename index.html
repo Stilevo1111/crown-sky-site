@@ -179,6 +179,12 @@ section{padding:84px 0}
 .tg-send{width:36px;height:36px;border:0;border-radius:50%;background:linear-gradient(180deg,#ffc93c,#ff9d2e);color:#0e2a4a;cursor:pointer;
   font-size:1rem;transition:.2s;flex:none}
 .tg-send:hover{transform:scale(1.06);box-shadow:0 4px 12px rgba(255,201,60,.5)}
+.tg-gate{padding:14px;text-align:center;color:#eaf8ff;font-size:.78rem}
+.tg-gate p{margin:0 0 8px;line-height:1.4}
+.tg-gate input{width:100%;box-sizing:border-box;border:0;border-radius:18px;padding:9px 12px;margin-bottom:8px;font:inherit;background:rgba(255,255,255,.95);color:#0e2a4a}
+.tg-gate button{width:100%;border:0;border-radius:18px;padding:9px 12px;font-weight:800;cursor:pointer;background:linear-gradient(180deg,#ffc93c,#ff9d2e);color:#0e2a4a}
+.tg-gate a{display:inline-block;margin-top:8px;color:var(--gold);font-weight:800;text-decoration:none;font-size:.76rem}
+.tg-gate .gate-msg{color:#ffd88a;font-weight:700;min-height:1em;margin:6px 0 0}
 .reviews-note{max-width:420px;text-align:center;margin:18px auto 0;font-size:.82rem;color:#5b7894;font-weight:700;line-height:1.5}
 .chat-inline{margin-top:20px;width:100%}
 .chat-inline-title{text-align:center;color:#fff;font-family:'Fredoka',sans-serif;font-size:1.15rem;
@@ -438,7 +444,14 @@ footer{background:var(--deep);color:#bcd9f2;padding:56px 0 30px}
                   <div class="tg-chat" id="reviewChat">
                     <div class="tg-date">Сегодня</div>
                   </div>
-                  <form class="tg-input" id="reviewForm">
+                  <div class="tg-gate" id="reviewGate">
+                    <p>Записки могут писать только пилоты, зарегистрированные в боте.</p>
+                    <input id="ticketInput" type="text" maxlength="32" placeholder="Номер билета из бота (CS-120-6291)" aria-label="Номер билета">
+                    <button type="button" id="verifyTicketBtn">Подтвердить билет</button>
+                    <p class="gate-msg" id="gateMsg"></p>
+                    <a href="https://t.me/crown_sky_bot?start=register" target="_blank" rel="noopener">Зарегистрироваться в боте →</a>
+                  </div>
+                  <form class="tg-input" id="reviewForm" style="display:none">
                     <input id="reviewText" type="text" maxlength="180" placeholder="Написать записку…" autocomplete="off" aria-label="Ваша записка">
                     <button class="tg-send" type="submit" aria-label="Отправить записку">➤</button>
                   </form>
@@ -993,10 +1006,24 @@ document.getElementById('playBtn').addEventListener('click', () => {
   const chat = document.getElementById('reviewChat');
   const form = document.getElementById('reviewForm');
   const input = document.getElementById('reviewText');
+  const gate = document.getElementById('reviewGate');
+  const ticketInput = document.getElementById('ticketInput');
+  const verifyBtn = document.getElementById('verifyTicketBtn');
+  const gateMsg = document.getElementById('gateMsg');
   if (!chat || !form || !input) return;
 
   const API_BASE = 'https://bot-2bdu.onrender.com';
   const KEY = 'crownsky_reviews_v1';
+  const TICKET_KEY = 'crownsky_ticket_v1';
+  let verifiedTicket = '';
+  try { verifiedTicket = localStorage.getItem(TICKET_KEY) || ''; } catch (e) {}
+
+  function applyGate() {
+    const ok = Boolean(verifiedTicket);
+    if (gate) gate.style.display = ok ? 'none' : 'block';
+    form.style.display = ok ? 'flex' : 'none';
+  }
+  applyGate();
   const emptyNote = () => {
     const d = document.createElement('div');
     d.className = 'muted';
@@ -1062,40 +1089,62 @@ document.getElementById('playBtn').addEventListener('click', () => {
   }
   loadReviews();
 
+  if (verifyBtn) verifyBtn.addEventListener('click', async () => {
+    const ticket = (ticketInput.value || '').trim().toUpperCase();
+    gateMsg.textContent = '';
+    if (!ticket) { gateMsg.textContent = 'Введи номер билета из бота.'; return; }
+    verifyBtn.disabled = true;
+    try {
+      const res = await fetch(API_BASE + '/api/verify-ticket', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ticket_no: ticket })
+      });
+      const data = await res.json();
+      if (res.ok && data.ok) {
+        verifiedTicket = data.ticket_no || ticket;
+        try { localStorage.setItem(TICKET_KEY, verifiedTicket); } catch (e) {}
+        applyGate();
+        input.focus();
+      } else {
+        gateMsg.textContent = 'Билет не найден. Проверь номер или зарегистрируйся в боте.';
+      }
+    } catch (err) {
+      gateMsg.textContent = 'Не удалось проверить билет. Попробуй ещё раз.';
+    } finally {
+      verifyBtn.disabled = false;
+    }
+  });
+
   form.addEventListener('submit', async e => {
     e.preventDefault();
+    if (!verifiedTicket) { applyGate(); return; }
     const text = (input.value || '').trim().slice(0, 180);
     if (!text) return;
     input.value = '';
 
-    if (API_BASE) {
-      try {
-        const res = await fetch(API_BASE + '/api/reviews', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text: text, name: 'Пилот' })
-        });
-        if (res.ok) {
-          const data = await res.json();
-          const empty = chat.querySelector('.muted');
-          if (empty && empty.textContent.includes('Пока нет записок')) empty.remove();
-          addMessage({ text: text, time: fmtTime(data.item?.created_at), mine: true });
-          chat.scrollTop = chat.scrollHeight;
-          input.focus();
-          return;
-        }
-      } catch (err) {}
-    }
-
-    let notes = [];
-    try { const raw = JSON.parse(localStorage.getItem(KEY) || '[]'); notes = Array.isArray(raw) ? raw : []; } catch (err) {}
-    const empty = chat.querySelector('.muted');
-    if (empty && empty.textContent.includes('Пока нет записок')) empty.remove();
-    notes.push({ text: text, time: fmtTime() });
-    try { localStorage.setItem(KEY, JSON.stringify(notes.slice(-40))); } catch (err) {}
-    addMessage({ text: text, time: notes[notes.length - 1].time, mine: true });
-    chat.scrollTop = chat.scrollHeight;
-    input.focus();
+    try {
+      const res = await fetch(API_BASE + '/api/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: text, name: 'Пилот', ticket_no: verifiedTicket })
+      });
+      if (res.status === 401) {
+        verifiedTicket = '';
+        try { localStorage.removeItem(TICKET_KEY); } catch (err) {}
+        applyGate();
+        if (gateMsg) gateMsg.textContent = 'Срок действия билета истёк — подтверди билет заново.';
+        return;
+      }
+      if (res.ok) {
+        const data = await res.json();
+        const empty = chat.querySelector('.muted');
+        if (empty && empty.textContent.includes('Пока нет записок')) empty.remove();
+        addMessage({ text: text, time: fmtTime(data.item?.created_at), mine: true });
+        chat.scrollTop = chat.scrollHeight;
+        input.focus();
+      }
+    } catch (err) {}
   });
 })();
 
