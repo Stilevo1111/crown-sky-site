@@ -232,7 +232,7 @@ section{padding:84px 0}
 .seat:hover:not(.taken):not(.selected){transform:translateY(-2px)}
 .seat:hover:not(.taken):not(.selected):not(.partial) .chair{fill:#00d2ff}
 .seat.taken{cursor:not-allowed}
-.seat.taken .chair{fill:#262626}
+.seat.taken .chair{fill:var(--gold)}
 /* Диван с одним пилотом: место ещё свободно — показываем отдельно от занятого */
 .seat.partial .chair{fill:#2f6bb5;stroke:var(--gold);stroke-width:2px}
 .seat.partial:hover .chair{fill:#3f7fcb}
@@ -268,8 +268,8 @@ section{padding:84px 0}
 .hall-legend{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:14px;font-size:.76rem;font-weight:800;color:#eaf8ff}
 .hall-legend i{display:inline-block;width:19px;height:21px;margin-right:6px;vertical-align:-6px}
 .hall-legend i svg{width:100%;height:100%;display:block}
-.hall-legend .lg-taken .chair{fill:#262626}
-.hall-legend .lg-selected .chair{fill:var(--gold)}
+.hall-legend .lg-taken .chair{fill:var(--gold)}
+.hall-legend .lg-selected .chair{fill:#00d2ff}
 .hall-legend .lg-double{width:32px;height:17px}
 .ticket-panel{min-width:0;padding-top:2px}
 .wait-counter{text-align:center}

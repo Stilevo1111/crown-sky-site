@@ -69,7 +69,7 @@
     .seat:hover:not(.taken){transform:translateY(-2px)}
     .seat:hover:not(.taken):not(.partial) .chair,.seat:focus-visible:not(.taken):not(.partial) .chair{fill:#00d2ff}
     .seat:active:not(.taken) .chair{fill:var(--gold2)}
-    .seat.taken .chair{fill:#262626}
+    .seat.taken .chair{fill:var(--gold)}
     /* Диван с одним пилотом: второе место ещё свободно */
     .seat.partial .chair{fill:#2f6bb5;stroke:var(--gold);stroke-width:2px}
     .seat.selected .chair{fill:var(--gold)}
@@ -91,7 +91,7 @@
     .legend{display:flex;gap:14px;justify-content:center;margin-top:10px;font-size:.72rem;opacity:.8}
     .hall-title{display:none;text-align:center;color:var(--gold);font-weight:800;font-size:.95rem;margin:14px 0 8px}
     .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;background:#3f55b0;margin-right:4px}
-    .legend .taken{background:#262626}.legend .sel{background:var(--gold)}
+    .legend .taken{background:var(--gold)}.legend .sel{background:#00d2ff}
     .top-block-app{margin:0 0 14px;padding:0;background:none;border:0;border-radius:0;box-shadow:none}
     .top-block-app h2{margin:0 0 8px;font-size:1.05rem;color:var(--gold)}
     .shots-app{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
