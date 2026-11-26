@@ -171,6 +171,10 @@ section{padding:84px 0}
 .msg.out{background:linear-gradient(180deg,#ffc93c,#ff9d2e);margin-left:auto;border-bottom-right-radius:4px}
 .msg-name{display:block;font-size:.7rem;font-weight:800;color:#2a9df4;margin-bottom:2px}
 .msg-avatar{width:24px;height:24px;border-radius:50%;object-fit:cover;float:left;margin:0 6px 2px 0}
+.msg.out .msg-avatar,.msg.out .msg-initial{float:right;margin:0 0 2px 6px}
+.msg-initial{width:24px;height:24px;border-radius:50%;float:left;margin:0 6px 2px 0;
+  display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#2a9df4,#164a7a);
+  color:#fff;font-size:.7rem;font-weight:800}
 .msg-time{display:block;text-align:right;font-size:.62rem;opacity:.55;margin-top:2px}
 .tg-input{display:flex;align-items:center;gap:8px;padding:9px 10px 12px;background:rgba(10,36,66,.6)}
 .tg-input input{flex:1;min-width:0;border:0;background:rgba(255,255,255,.95);border-radius:20px;padding:10px 13px;
@@ -713,7 +717,7 @@ document.getElementById('playBtn').addEventListener('click', () => {
     const subs = subscribers.filter(s => Number(s.seat) === id);
     const sub = subs.find(s => Number(s.slot || 1) === slot) || subs[slot - 1];
     const own = mine.find(v => v.id === id);
-    const name = (slot === 1 && own && own.name) || (sub && sub.name) || NAMES[(id + slot * 5) % NAMES.length];
+    const name = (slot === 1 && own && own.name) || (sub && (sub.name || sub.first_name || sub.username)) || NAMES[(id + slot * 5) % NAMES.length];
     if (sub && sub.photo_url) return { img: sub.photo_url, name: name };
     const hue = ((id + slot * 13) * 47) % 360;
     return {
@@ -1015,8 +1019,16 @@ document.getElementById('playBtn').addEventListener('click', () => {
   const API_BASE = 'https://bot-2bdu.onrender.com';
   const KEY = 'crownsky_reviews_v1';
   const TICKET_KEY = 'crownsky_ticket_v1';
+  const AVATAR_KEY = 'crownsky_avatar_v1';
+  const NAME_KEY = 'crownsky_pilot_name_v1';
   let verifiedTicket = '';
-  try { verifiedTicket = localStorage.getItem(TICKET_KEY) || ''; } catch (e) {}
+  let verifiedAvatar = '';
+  let verifiedName = '';
+  try {
+    verifiedTicket = localStorage.getItem(TICKET_KEY) || '';
+    verifiedAvatar = localStorage.getItem(AVATAR_KEY) || '';
+    verifiedName = localStorage.getItem(NAME_KEY) || '';
+  } catch (e) {}
 
   function applyGate() {
     const ok = Boolean(verifiedTicket);
@@ -1041,14 +1053,19 @@ document.getElementById('playBtn').addEventListener('click', () => {
   function addMessage(m) {
     const el = document.createElement('div');
     el.className = 'msg ' + (m.mine ? 'out' : 'in');
+    if (m.photo_url) {
+      const img = document.createElement('img');
+      img.className = 'msg-avatar';
+      img.src = m.photo_url;
+      img.alt = '';
+      el.appendChild(img);
+    } else if (m.initial) {
+      const init = document.createElement('span');
+      init.className = 'msg-initial';
+      init.textContent = m.initial;
+      el.appendChild(init);
+    }
     if (!m.mine) {
-      if (m.photo_url) {
-        const img = document.createElement('img');
-        img.className = 'msg-avatar';
-        img.src = m.photo_url;
-        img.alt = '';
-        el.appendChild(img);
-      }
       const name = document.createElement('span');
       name.className = 'msg-name';
       name.textContent = m.name || 'Пилот';
@@ -1079,7 +1096,8 @@ document.getElementById('playBtn').addEventListener('click', () => {
         chat.innerHTML = '';
         if (!data.items.length) emptyNote();
         data.items.slice().reverse().forEach(item => addMessage({
-          name: item.name, text: item.text, time: fmtTime(item.created_at), photo_url: item.photo_url
+          name: item.name, text: item.text, time: fmtTime(item.created_at), photo_url: item.photo_url,
+          initial: String(item.name || 'П').trim()[0]?.toUpperCase() || 'П'
         }));
         chat.scrollTop = chat.scrollHeight;
         return;
@@ -1103,7 +1121,13 @@ document.getElementById('playBtn').addEventListener('click', () => {
       const data = await res.json();
       if (res.ok && data.ok) {
         verifiedTicket = data.ticket_no || ticket;
-        try { localStorage.setItem(TICKET_KEY, verifiedTicket); } catch (e) {}
+        verifiedAvatar = data.photo_url || '';
+        verifiedName = data.name || '';
+        try {
+          localStorage.setItem(TICKET_KEY, verifiedTicket);
+          localStorage.setItem(AVATAR_KEY, verifiedAvatar);
+          localStorage.setItem(NAME_KEY, verifiedName);
+        } catch (e) {}
         applyGate();
         input.focus();
       } else {
@@ -1140,7 +1164,13 @@ document.getElementById('playBtn').addEventListener('click', () => {
         const data = await res.json();
         const empty = chat.querySelector('.muted');
         if (empty && empty.textContent.includes('Пока нет записок')) empty.remove();
-        addMessage({ text: text, time: fmtTime(data.item?.created_at), mine: true });
+        addMessage({
+          text: text,
+          time: fmtTime(data.item?.created_at),
+          mine: true,
+          photo_url: data.item?.photo_url || verifiedAvatar || null,
+          initial: verifiedName.trim()[0]?.toUpperCase() || 'П'
+        });
         chat.scrollTop = chat.scrollHeight;
         input.focus();
       }
