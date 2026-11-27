@@ -190,6 +190,21 @@ section{padding:84px 0}
 .tg-gate a{display:inline-block;margin-top:8px;color:var(--gold);font-weight:800;text-decoration:none;font-size:.76rem}
 .tg-gate .gate-msg{color:#ffd88a;font-weight:700;min-height:1em;margin:6px 0 0}
 .top-block{margin:18px 0 0;padding:0;background:none;border-radius:0;color:#eaf8ff}
+.top-heading{display:flex;align-items:center;gap:8px}
+.top-heading h3{margin:0}
+.top-info{width:24px;height:24px;flex:none;border-radius:50%;border:1px solid rgba(255,201,60,.6);
+  background:rgba(255,201,60,.15);color:var(--gold);font-weight:800;font-size:.8rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center}
+.top-modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:20px;
+  background:rgba(4,18,35,.82);z-index:10001}
+.top-modal.show{display:flex}
+.top-modal-card{position:relative;width:100%;max-width:360px;padding:24px 22px;border-radius:18px;
+  background:#0e2a4a;border:1px solid rgba(255,201,60,.35);color:#fff;box-shadow:0 18px 50px rgba(0,0,0,.5)}
+.top-modal-card h3{margin:0 0 12px;font-size:1.05rem;color:var(--gold)}
+.top-modal-card ul{margin:0 0 18px;padding-left:20px;font-size:.86rem;line-height:1.6}
+.top-modal-close{position:absolute;top:8px;right:12px;border:0;background:none;color:#fff;font-size:1.5rem;cursor:pointer}
+.top-modal-invite{width:100%;padding:11px;border-radius:10px;border:0;cursor:pointer;font-weight:800;
+  background:linear-gradient(180deg,#ffc93c,#ff9d2e);color:#0e2a4a}
 .top-block h3{margin:0 0 6px;font-family:'Fredoka',sans-serif;font-size:1rem;color:var(--gold)}
 .top-prize{font-size:.74rem;opacity:.8;margin:0 0 10px;line-height:1.4}
 .top-podium{display:flex;gap:8px;overflow-x:auto;padding:14px 0 6px;scrollbar-width:thin}
@@ -491,7 +506,10 @@ footer{background:var(--deep);color:#bcd9f2;padding:56px 0 30px}
         </aside>
       </div>
       <div class="top-block" id="topBlock">
-        <h3>🏆 Топ по приглашениям</h3>
+        <div class="top-heading">
+          <h3>🏆 Топ по приглашениям</h3>
+          <button class="top-info" id="topInfoBtn" type="button" aria-label="Плюсы приглашений">?</button>
+        </div>
         <div class="top-list" id="topList"></div>
       </div>
     </div>
@@ -664,6 +682,20 @@ footer{background:var(--deep);color:#bcd9f2;padding:56px 0 30px}
     </div>
   </div>
 </footer>
+
+<div class="top-modal" id="topModal" aria-hidden="true">
+  <div class="top-modal-card">
+    <button class="top-modal-close" id="topModalClose" type="button" aria-label="Закрыть">×</button>
+    <h3>🤝 Почему выгодно звать друзей</h3>
+    <ul>
+      <li>Каждый друг, подтвердивший билет, добавляет тебе <b>+1</b> в топ.</li>
+      <li>Чем больше приглашений — тем выше твоё место в рейтинге пилотов.</li>
+      <li>Топ-10 заберут редкие <b>ZXC-мартиры</b> и эксклюзивный обвес для корабля «Гуль».</li>
+      <li>Призы не продаются в магазине — их можно получить только за приглашения.</li>
+    </ul>
+    <button class="top-modal-invite" id="topModalInvite" type="button">🤝 Пригласить друга</button>
+  </div>
+</div>
 
 <script>
 // Шапка: фон при скролле
@@ -1299,6 +1331,20 @@ document.getElementById('playBtn').addEventListener('click', () => {
 
 // Год в футере
 document.getElementById('year').textContent = new Date().getFullYear();
+
+// Окно с плюсами приглашений
+(() => {
+  const modal = document.getElementById('topModal');
+  if (!modal) return;
+  const close = () => modal.classList.remove('show');
+  document.getElementById('topInfoBtn')?.addEventListener('click', () => modal.classList.add('show'));
+  document.getElementById('topModalClose')?.addEventListener('click', close);
+  modal.addEventListener('click', e => { if (e.target === modal) close(); });
+  document.getElementById('topModalInvite')?.addEventListener('click', () => {
+    close();
+    document.getElementById('inviteSiteBtn')?.click();
+  });
+})();
 </script>
 </body>
 </html>

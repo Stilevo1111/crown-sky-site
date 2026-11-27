@@ -94,7 +94,19 @@
     .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;background:#3f55b0;margin-right:4px}
     .legend .taken{background:var(--gold)}.legend .sel{background:#00d2ff}
     .top-block-app{margin:0 0 14px;padding:0;background:none;border:0;border-radius:0;box-shadow:none}
-    .top-block-app h2{margin:0 0 8px;font-size:1.05rem;color:var(--gold)}
+    .top-heading{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+    .top-heading h2{margin:0;font-size:1.05rem;color:var(--gold)}
+    .top-info{width:22px;height:22px;flex:none;border-radius:50%;border:1px solid rgba(255,201,60,.6);
+      background:rgba(255,201,60,.15);color:var(--gold);font-weight:800;font-size:.78rem;cursor:pointer;
+      display:flex;align-items:center;justify-content:center}
+    .top-modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:20px;
+      background:rgba(4,18,35,.82);z-index:9998}
+    .top-modal.show{display:flex}
+    .top-modal-card{position:relative;width:100%;max-width:340px;padding:22px 20px;border-radius:18px;
+      background:#0e2a4a;border:1px solid rgba(255,201,60,.35);color:#fff;box-shadow:0 18px 50px rgba(0,0,0,.5)}
+    .top-modal-card h3{margin:0 0 12px;font-size:1rem;color:var(--gold)}
+    .top-modal-card ul{margin:0 0 16px;padding-left:18px;font-size:.82rem;line-height:1.6}
+    .top-modal-close{position:absolute;top:6px;right:10px;border:0;background:none;color:#fff;font-size:1.5rem;cursor:pointer}
     .shots-app{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
     .shots-app img{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:10px;display:block;
       border:1px solid rgba(255,255,255,.12);background:#0e2a4a}
@@ -143,7 +155,10 @@
     </div>
 
     <div class="top-block-app">
-      <h2>🏆 Топ по приглашениям</h2>
+      <div class="top-heading">
+        <h2>🏆 Топ по приглашениям</h2>
+        <button class="top-info" id="topInfoBtn" type="button" aria-label="Плюсы приглашений">?</button>
+      </div>
       <div id="appTop"></div>
     </div>
 
@@ -178,6 +193,20 @@
     </div>
 
     <div class="hint" id="demoHint" style="display:none">Предпросмотр без Telegram: регистрация доступна только внутри бота.</div>
+  </div>
+
+  <div class="top-modal" id="topModal" aria-hidden="true">
+    <div class="top-modal-card">
+      <button class="top-modal-close" id="topModalClose" type="button" aria-label="Закрыть">×</button>
+      <h3>🤝 Почему выгодно звать друзей</h3>
+      <ul>
+        <li>Каждый друг, подтвердивший билет, добавляет тебе <b>+1</b> в топ.</li>
+        <li>Чем больше приглашений — тем выше твоё место в рейтинге пилотов.</li>
+        <li>Топ-10 заберут редкие <b>ZXC-мартиры</b> и эксклюзивный обвес для корабля «Гуль».</li>
+        <li>Призы не продаются в магазине — их можно получить только за приглашения.</li>
+      </ul>
+      <button class="btn" id="topModalInvite" type="button">🤝 Пригласить друга</button>
+    </div>
   </div>
 
   <script>
@@ -477,6 +506,17 @@
       } catch (e) {
         showStatus('Ссылка: ' + url, true);
       }
+    });
+
+    const topModal = document.getElementById('topModal');
+    const openTopModal = () => topModal && topModal.classList.add('show');
+    const closeTopModal = () => topModal && topModal.classList.remove('show');
+    document.getElementById('topInfoBtn')?.addEventListener('click', openTopModal);
+    document.getElementById('topModalClose')?.addEventListener('click', closeTopModal);
+    topModal?.addEventListener('click', e => { if (e.target === topModal) closeTopModal(); });
+    document.getElementById('topModalInvite')?.addEventListener('click', () => {
+      closeTopModal();
+      inviteBtn?.click();
     });
 
     const invitedBy = params.get('ref');
