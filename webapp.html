@@ -93,7 +93,7 @@
     .hall-title{display:none;text-align:center;color:var(--gold);font-weight:800;font-size:.95rem;margin:14px 0 8px}
     .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;background:#3f55b0;margin-right:4px}
     .legend .taken{background:var(--gold)}.legend .sel{background:#00d2ff}
-    .top-block-app{margin:0 0 14px;padding:0;background:none;border:0;border-radius:0;box-shadow:none}
+    .top-block-app{margin:14px 0 0;padding:14px 0 0;background:none;border:0;border-top:1px solid rgba(255,255,255,.12);box-shadow:none}
     .top-heading{display:flex;align-items:center;gap:8px;margin-bottom:8px}
     .top-heading h2{margin:0;font-size:1.05rem;color:var(--gold)}
     .top-info{width:22px;height:22px;flex:none;border-radius:50%;border:1px solid rgba(255,201,60,.6);
@@ -150,16 +150,15 @@
 
     <div class="card">
       <div class="seat-map" id="appSeatMap"></div>
+      <div class="top-block-app">
+        <div class="top-heading">
+          <h2>🏆 Топ по приглашениям</h2>
+          <button class="top-info" id="topInfoBtn" type="button" aria-label="Плюсы приглашений">?</button>
+        </div>
+        <div id="appTop"></div>
+      </div>
       <button class="btn ghost" id="moreHallsBtn" type="button">Показать ещё зал ↓</button>
       <div class="legend"><span><i></i>Свободно</span><span><i class="taken"></i>Занято</span><span><i class="sel"></i>Твоё место</span></div>
-    </div>
-
-    <div class="top-block-app">
-      <div class="top-heading">
-        <h2>🏆 Топ по приглашениям</h2>
-        <button class="top-info" id="topInfoBtn" type="button" aria-label="Плюсы приглашений">?</button>
-      </div>
-      <div id="appTop"></div>
     </div>
 
     <div class="card" id="ticketCard">
