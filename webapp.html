@@ -93,6 +93,7 @@
     .hall-title{display:none;text-align:center;color:var(--gold);font-weight:800;font-size:.95rem;margin:14px 0 8px}
     .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;background:#3f55b0;margin-right:4px}
     .legend .taken{background:var(--gold)}.legend .sel{background:#00d2ff}
+    .legend .dbl{background:#3f55b0;border:1px solid var(--gold);box-sizing:border-box}
     .top-block-app{margin:14px 0 0;padding:14px 0 0;background:none;border:0;border-top:1px solid rgba(255,255,255,.12);box-shadow:none}
     .top-heading{display:flex;align-items:center;gap:8px;margin-bottom:8px}
     .top-heading h2{margin:0;font-size:1.05rem;color:var(--gold)}
@@ -157,8 +158,8 @@
         </div>
         <div id="appTop"></div>
       </div>
+      <div class="legend"><span><i></i>Свободно</span><span><i class="taken"></i>Занято</span><span><i class="sel"></i>Твоё место</span><span><i class="dbl"></i>Диван</span></div>
       <button class="btn ghost" id="moreHallsBtn" type="button">Показать ещё зал ↓</button>
-      <div class="legend"><span><i></i>Свободно</span><span><i class="taken"></i>Занято</span><span><i class="sel"></i>Твоё место</span></div>
     </div>
 
     <div class="card" id="ticketCard">
